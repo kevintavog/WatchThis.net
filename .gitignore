@@ -2,6 +2,9 @@
 [Bb]in/
 [Oo]bj/
 
+# Mac files
+.DS_Store
+
 # mstest test results
 TestResults
 
@@ -12,6 +15,7 @@ TestResults
 *.suo
 *.user
 *.sln.docstates
+*.userprefs
 
 # Build results
 [Dd]ebug/
