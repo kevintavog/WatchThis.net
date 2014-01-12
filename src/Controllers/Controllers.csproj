@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -30,9 +30,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="ExifLib">
-      <HintPath>..\packages\ExifLib.1.4.9.0\lib\net40\ExifLib.dll</HintPath>
-    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.2.1.0\lib\net40\NLog.dll</HintPath>
@@ -57,9 +54,9 @@
       <Project>{34D4CC23-AE82-46C3-9D63-07FC6F75B1ED}</Project>
       <Name>Models</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Tests\FileHash\FileHash.csproj">
-      <Project>{8C8FC1E7-4C15-493A-A109-7BE39FBC09AA}</Project>
-      <Name>FileHash</Name>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{dd17da77-120e-469b-9bb4-ebb73e7e0335}</Project>
+      <Name>Utilities</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

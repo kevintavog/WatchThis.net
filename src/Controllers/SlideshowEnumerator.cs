@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using NLog;
-using FileHash;
 using WatchThis.Models;
+using WatchThis.Utilities;
 
 namespace WatchThis.Controllers
 {
