@@ -120,4 +120,8 @@
       <Name>Models</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\restrictedshine.tiff" />
+    <BundleResource Include="Resources\transitionmask.jpg" />
+  </ItemGroup>
 </Project>
