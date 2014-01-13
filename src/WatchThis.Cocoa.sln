@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controllers", "Controllers\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Views", "Views", "{BB685E19-D81E-454E-A118-519DB0D5D552}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchThisMac", "Views\WatchThisMac\WatchThisMac.csproj", "{C8E47640-B0D3-4464-A7F5-3AA9D425B900}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchThisCocoa", "Views\WatchThis.Cocoa\WatchThisCocoa.csproj", "{C8E47640-B0D3-4464-A7F5-3AA9D425B900}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "Models\Models.csproj", "{34D4CC23-AE82-46C3-9D63-07FC6F75B1ED}"
 EndProject
@@ -69,7 +69,7 @@ Global
 		{C8E47640-B0D3-4464-A7F5-3AA9D425B900} = {BB685E19-D81E-454E-A118-519DB0D5D552}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Views\WatchThisMac\WatchThisMac.csproj
+		StartupItem = Views\WatchThis.Cocoa\WatchThisCocoa.csproj
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
 		$1.DirectoryNamespaceAssociation = None

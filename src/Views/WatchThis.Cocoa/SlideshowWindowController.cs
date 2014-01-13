@@ -167,7 +167,7 @@ namespace WatchThis
 			}
 			else
 			{
-				filterTransition.filter = pageCurlShadowTransition; // transitionFilters[index - transitionTypes.Count()];
+				filterTransition.filter = transitionFilters[index - transitionTypes.Count()];
 				UpdateFilterProperties();
 				imageView.Layer.AddAnimation(filterTransition, null);
 
