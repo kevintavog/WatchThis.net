@@ -10,6 +10,7 @@ using MonoMac.Foundation;
 using NLog;
 using WatchThis.Controllers;
 using WatchThis.Models;
+using MonoMac.CoreImage;
 
 namespace WatchThis
 {
@@ -18,11 +19,34 @@ namespace WatchThis
 		public SlideshowModel Model { get; set; }
 
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		NSImageView[]	imageViews;
-		int 			activeViewIndex = -1;
+		private Random random = new Random();
+		NSImageView		imageView;
 		private SlideshowDriver driver;
 
-		CATransition transition;
+		CATransition typeTransition;
+		CATransition filterTransition;
+
+		CIBarsSwipeTransition				barsSwipeTransition;
+		CICopyMachineTransition 			copyMachineTransition;
+		CIDisintegrateWithMaskTransition	disintegrateTransition;
+		CIDissolveTransition				dissolveTransition;
+		CIFlashTransition 					flashTransition;
+		CIModTransition						modTransition;
+		CIFilter			 				pageCurlShadowTransition;
+		CIRippleTransition 					rippleTransition;
+		CISwipeTransition					swipeTransition;
+
+		CIImage								transitionInputMaskImage;
+		CILanczosScaleTransform				disintegrateTransform;
+
+		string[] transitionTypes = new string []
+		{ 
+			CATransition.TransitionMoveIn,
+			CATransition.TransitionPush,
+			CATransition.TransitionReveal
+		};
+
+		IList<CIFilter> transitionFilters = new List<CIFilter>();
 
 
 		#region Constructors
@@ -66,23 +90,12 @@ namespace WatchThis
 			var contentView = Window.ContentView;
 			contentView.WantsLayer = true;
 
-			imageViews = new NSImageView[2];
-			for (int idx = 0; idx < imageViews.Length; ++idx)
-			{
-				imageViews[idx] = CreateImageView();
-			}
-			contentView.AddSubview(imageViews[0]);
-
-			transition = new CATransition();
-			transition.Duration = driver != null ? driver.Model.TransitionSeconds : 0.5;
-			transition.Type = CATransition. TransitionPush;
-			transition.Subtype = CATransition.TransitionFromLeft;
-			transition.TimingFunction = CAMediaTimingFunction.FromName(CAMediaTimingFunction.EaseOut);
-
-			contentView.Animations = new NSDictionary("subviews", transition);
+			imageView = CreateImageView();
+			contentView.AddSubview(imageView);
 
 			base.AwakeFromNib();
 
+			CreateTransitions();
 			Window.Delegate = new SlideshowWindowDelegate(this);
 		}
 
@@ -128,14 +141,6 @@ namespace WatchThis
 		{
 			NSCursor.SetHiddenUntilMouseMoves(true);
 
-			NSImageView priorView = null;
-			if (activeViewIndex != -1)
-			{
-				priorView = imageViews[activeViewIndex];
-			}
-
-			activeViewIndex = (activeViewIndex + 1) % imageViews.Length;
-
 			// To work around possible problems in Mono's NSImage dispose: https://bugzilla.xamarin.com/show_bug.cgi?id=15081
 			System.GC.Collect();
 
@@ -143,26 +148,30 @@ namespace WatchThis
 			var imageRep = image.BestRepresentationForDevice(null);
 			SizeF imageSize = new SizeF(imageRep.PixelsWide, imageRep.PixelsHigh);
 			image.Size = imageSize;
-			logger.Info("View {0}, image {1}", activeViewIndex, imageInfo.FullPath);
+			imageView.Image = image;
+			var filterName = ApplyFilter(fromLeft);
+			logger.Info("image {0}; {1}", imageInfo.FullPath, filterName);
+		}
 
-
-			var currentView = imageViews[activeViewIndex];
-			currentView.Image = image;
-
-			if (priorView != null)
+		private string ApplyFilter(bool fromLeft)
+		{
+			var index = random.Next(transitionTypes.Count() + transitionFilters.Count);
+			if (index < transitionTypes.Count())
 			{
-				if (driver.Model.TransitionSeconds > 0)
-				{
-					transition.Subtype = fromLeft ? CATransition.TransitionFromLeft : CATransition.TransitionFromRight;
-					currentView.Frame = priorView.Frame;
-					NSView animator = (NSView) Window.ContentView.Animator;
-					animator.ReplaceSubviewWith(priorView, currentView);
-				}
-				else
-				{
-					currentView.Frame = priorView.Frame;
-					Window.ContentView.ReplaceSubviewWith(priorView, currentView);
-				}
+				typeTransition.Type = transitionTypes[index];
+				typeTransition.Subtype = fromLeft ? CATransition.TransitionFromLeft : CATransition.TransitionFromRight;
+				typeTransition.FillMode = CAFillMode.Forwards;
+				imageView.Layer.AddAnimation(typeTransition, null);
+
+				return typeTransition.Type;
+			}
+			else
+			{
+				filterTransition.filter = pageCurlShadowTransition; // transitionFilters[index - transitionTypes.Count()];
+				UpdateFilterProperties();
+				imageView.Layer.AddAnimation(filterTransition, null);
+
+				return ((CIFilter) filterTransition.filter).Attributes[(NSString) "CIAttributeFilterName"].ToString();
 			}
 		}
 
@@ -181,6 +190,99 @@ namespace WatchThis
 		public void InvokeOnUiThread(Action action)
 		{
 			BeginInvokeOnMainThread(delegate { action(); } );
+		}
+
+		private void UpdateFilterProperties()
+		{
+			RectangleF rect = Window.ContentView.Frame;
+			var extent = new CIVector(rect.Left, rect.Bottom, rect.Width, rect.Height);
+			var center = new CIVector(rect.GetMidX(),rect.GetMidY());
+
+			copyMachineTransition.Extent = extent;
+
+			var xScale = rect.Width / transitionInputMaskImage.Extent.Width;
+			var yScale = rect.Height / transitionInputMaskImage.Extent.Height;
+			disintegrateTransform.Scale = yScale;
+			disintegrateTransform.AspectRatio = xScale / yScale;
+			disintegrateTransition.Mask = (CIImage) disintegrateTransform.ValueForKey((NSString) "outputImage");
+
+			flashTransition.Center = center;
+			flashTransition.Extent = extent;
+
+			modTransition.Center = center;
+
+			pageCurlShadowTransition.SetValueForKey(extent, (NSString) "inputExtent");
+			pageCurlShadowTransition.SetValueForKey(extent, (NSString) "inputShadowExtent");
+
+			rippleTransition.Center = center;
+			rippleTransition.Extent = extent;
+		}
+
+		private void CreateTransitions()
+		{
+			var bundle = NSBundle.MainBundle;
+
+			// Shading & mask for transitions (borrowed from the "Fun House" Core Image example).
+			var inputShadingImage = new CIImage(NSData.FromFile(bundle.PathForResource("restrictedshine", "tiff")));
+			var grayscaleImage = new CIImage(NSData.FromFile(bundle.PathForResource("grayscale", "jpg")));
+			transitionInputMaskImage = new CIImage(NSData.FromFile(bundle.PathForResource("transitionmask", "jpg")));
+
+
+
+			typeTransition = new CATransition();
+			typeTransition.Duration = driver != null ? driver.Model.TransitionSeconds : 0.5;
+			typeTransition.Type = CATransition.TransitionPush;
+			typeTransition.Subtype = CATransition.TransitionFromLeft;
+			typeTransition.TimingFunction = CAMediaTimingFunction.FromName(CAMediaTimingFunction.EaseInEaseOut);
+
+			barsSwipeTransition = new CIBarsSwipeTransition();
+			barsSwipeTransition.SetDefaults();
+
+			copyMachineTransition = new CICopyMachineTransition();
+			copyMachineTransition.SetDefaults();
+
+			disintegrateTransform = new CILanczosScaleTransform();
+			disintegrateTransform.SetDefaults();
+			disintegrateTransform.Image = transitionInputMaskImage;
+			disintegrateTransition = new CIDisintegrateWithMaskTransition();
+			disintegrateTransition.SetDefaults();
+
+			dissolveTransition = new CIDissolveTransition();
+			dissolveTransition.SetDefaults();
+
+			flashTransition = new CIFlashTransition();
+			flashTransition.SetDefaults();
+			flashTransition.Color = new CIColor(NSColor.Black.CGColor);
+
+			modTransition = new CIModTransition();
+			modTransition.SetDefaults();
+
+			pageCurlShadowTransition = CIFilter.FromName("CIPageCurlWithShadowTransition");
+			pageCurlShadowTransition.SetDefaults();
+			pageCurlShadowTransition.SetValueForKey(NSNumber.FromDouble(Math.PI / 4), (NSString) "inputAngle");
+			pageCurlShadowTransition.SetValueForKey(grayscaleImage, (NSString) "inputBacksideImage");
+
+			rippleTransition = new CIRippleTransition();
+			rippleTransition.SetDefaults();
+			rippleTransition.ShadingImage = inputShadingImage;
+
+			swipeTransition = new CISwipeTransition();
+			swipeTransition.SetDefaults();
+
+			filterTransition = new CATransition();
+			filterTransition.filter = disintegrateTransition;
+			filterTransition.Duration = typeTransition.Duration;
+
+
+			transitionFilters.Add(barsSwipeTransition);
+			transitionFilters.Add(copyMachineTransition);
+			transitionFilters.Add(disintegrateTransition);
+			transitionFilters.Add(dissolveTransition);
+			transitionFilters.Add(flashTransition);
+			transitionFilters.Add(modTransition);
+			transitionFilters.Add(pageCurlShadowTransition);
+			transitionFilters.Add(rippleTransition);
+			transitionFilters.Add(swipeTransition);
 		}
 	}
 
