@@ -71,6 +71,7 @@ namespace WatchThis.Controllers
 
 		public void Stop()
 		{
+            logger.Info("SlideshowDriver.Stop");
 			if (_timer != null)
 			{
 				_timer.Stop();

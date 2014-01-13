@@ -1,0 +1,24 @@
+﻿<Window x:Class="WatchThis.Wpf.SlideshowListView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Watch This" Height="350" Width="525">
+    <Grid>
+        <ListView Margin="10" Name="SlideshowList" FontSize="30" SelectionMode="Single">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <EventSetter Event="MouseDoubleClick" Handler="OnMouseDoubleClicked" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.Resources>
+                <Style TargetType="GridViewColumnHeader">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Style>
+            </ListView.Resources>
+            <ListView.View >
+                <GridView AllowsColumnReorder="False"  >
+                    <GridViewColumn DisplayMemberBinding="{Binding Name}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</Window>

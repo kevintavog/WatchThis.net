@@ -1,0 +1,8 @@
+﻿<Window x:Class="WatchThis.Wpf.SlideshowWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SlideshowWindow" Height="300" Width="300">
+    <Grid Background="Black">
+        <Image Name="Image" Margin="0,0,0,0" Stretch="Uniform"/>
+    </Grid>
+</Window>
