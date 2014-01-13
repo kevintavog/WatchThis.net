@@ -32,7 +32,7 @@ namespace WatchThis
 		CIDissolveTransition				dissolveTransition;
 		CIFlashTransition 					flashTransition;
 		CIModTransition						modTransition;
-		CIPageCurlTransition 				pageCurlTransition;
+		CIFilter			 				pageCurlShadowTransition;
 		CIRippleTransition 					rippleTransition;
 		CISwipeTransition					swipeTransition;
 
@@ -167,7 +167,7 @@ namespace WatchThis
 			}
 			else
 			{
-				filterTransition.filter = transitionFilters[index - transitionTypes.Count()];
+				filterTransition.filter = pageCurlShadowTransition; // transitionFilters[index - transitionTypes.Count()];
 				UpdateFilterProperties();
 				imageView.Layer.AddAnimation(filterTransition, null);
 
@@ -198,8 +198,6 @@ namespace WatchThis
 			var extent = new CIVector(rect.Left, rect.Bottom, rect.Width, rect.Height);
 			var center = new CIVector(rect.GetMidX(),rect.GetMidY());
 
-			pageCurlTransition.Extent = extent;
-
 			copyMachineTransition.Extent = extent;
 
 			var xScale = rect.Width / transitionInputMaskImage.Extent.Width;
@@ -213,6 +211,9 @@ namespace WatchThis
 
 			modTransition.Center = center;
 
+			pageCurlShadowTransition.SetValueForKey(extent, (NSString) "inputExtent");
+			pageCurlShadowTransition.SetValueForKey(extent, (NSString) "inputShadowExtent");
+
 			rippleTransition.Center = center;
 			rippleTransition.Extent = extent;
 		}
@@ -223,6 +224,7 @@ namespace WatchThis
 
 			// Shading & mask for transitions (borrowed from the "Fun House" Core Image example).
 			var inputShadingImage = new CIImage(NSData.FromFile(bundle.PathForResource("restrictedshine", "tiff")));
+			var grayscaleImage = new CIImage(NSData.FromFile(bundle.PathForResource("grayscale", "jpg")));
 			transitionInputMaskImage = new CIImage(NSData.FromFile(bundle.PathForResource("transitionmask", "jpg")));
 
 
@@ -239,12 +241,6 @@ namespace WatchThis
 			copyMachineTransition = new CICopyMachineTransition();
 			copyMachineTransition.SetDefaults();
 
-			pageCurlTransition = new CIPageCurlTransition();
-			pageCurlTransition.SetDefaults();
-			pageCurlTransition.Angle = (float) (Math.PI / 4);
-			pageCurlTransition.ShadingImage = inputShadingImage;
-			pageCurlTransition.BacksideImage = transitionInputMaskImage;
-
 			disintegrateTransform = new CILanczosScaleTransform();
 			disintegrateTransform.SetDefaults();
 			disintegrateTransform.Image = transitionInputMaskImage;
@@ -256,9 +252,15 @@ namespace WatchThis
 
 			flashTransition = new CIFlashTransition();
 			flashTransition.SetDefaults();
+			flashTransition.Color = new CIColor(NSColor.Black.CGColor);
 
 			modTransition = new CIModTransition();
 			modTransition.SetDefaults();
+
+			pageCurlShadowTransition = CIFilter.FromName("CIPageCurlWithShadowTransition");
+			pageCurlShadowTransition.SetDefaults();
+			pageCurlShadowTransition.SetValueForKey(NSNumber.FromDouble(Math.PI / 4), (NSString) "inputAngle");
+			pageCurlShadowTransition.SetValueForKey(grayscaleImage, (NSString) "inputBacksideImage");
 
 			rippleTransition = new CIRippleTransition();
 			rippleTransition.SetDefaults();
@@ -278,7 +280,7 @@ namespace WatchThis
 			transitionFilters.Add(dissolveTransition);
 			transitionFilters.Add(flashTransition);
 			transitionFilters.Add(modTransition);
-			transitionFilters.Add(pageCurlTransition);
+			transitionFilters.Add(pageCurlShadowTransition);
 			transitionFilters.Add(rippleTransition);
 			transitionFilters.Add(swipeTransition);
 		}

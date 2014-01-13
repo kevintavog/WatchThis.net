@@ -123,5 +123,6 @@
   <ItemGroup>
     <BundleResource Include="Resources\restrictedshine.tiff" />
     <BundleResource Include="Resources\transitionmask.jpg" />
+    <BundleResource Include="Resources\grayscale.jpg" />
   </ItemGroup>
 </Project>
