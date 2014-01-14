@@ -7,6 +7,15 @@ using WatchThis.Models;
 
 namespace WatchThis.Controllers
 {
+	internal enum DriverState
+	{
+		Created,
+		Enumerating,
+		Playing,
+		Paused,
+		Stopped,
+	}
+
 	/// <summary>
 	/// Responsible for loading and playing slideshows, though delegating to a viewer for the actual
 	/// image display.
@@ -18,6 +27,8 @@ namespace WatchThis.Controllers
 		public SlideshowModel Model { get; private set; }
 		public ISlideshowViewer Viewer { get; private set; }
 		public IPlatformService PlatformService { get; private set; }
+
+		private DriverState State { get; set; }
 
 		private Timer _timer;
 		private Random _random = new Random();
@@ -43,35 +54,45 @@ namespace WatchThis.Controllers
 			PlatformService = platformService;
 			Model = model;
 			Viewer = viewer;
+			State = DriverState.Created;
 		}
 
 		public void Play()
 		{
-			if (_timer != null)
+			logger.Info("SlideshowDriver.Play: {0}", State);
+			if (State == DriverState.Playing)
 			{
 				return;
 			}
 
+			State = DriverState.Playing;
 			var time = (Model.SlideSeconds + Model.TransitionSeconds) * 1000;
 			if (time < 100)
 			{
 				time = 100;
 			}
 			_timer = new Timer(time) { AutoReset = true, Enabled = true };
-			_timer.Elapsed += (s, e) => Next();
+			_timer.Elapsed += (s, e) => NextSlide();
 
 			Next();
 		}
 
-		public bool IsPlaying { get { return _timer != null; } }
-
 		public void Pause()
 		{
+			logger.Info("SlideshowDriver.Pause: {0}", State);
+			State = DriverState.Paused;
+			if (_timer != null)
+			{
+				_timer.Stop();
+				_timer.Dispose();
+				_timer = null;
+			}
 		}
 
 		public void Stop()
 		{
-            logger.Info("SlideshowDriver.Stop");
+			logger.Info("SlideshowDriver.Stop {0}", State);
+			State = DriverState.Stopped;
 			if (_timer != null)
 			{
 				_timer.Stop();
@@ -80,6 +101,12 @@ namespace WatchThis.Controllers
 		}
 
 		public void Next()
+		{
+			logger.Info("SlideshowDriver.Next {0}", State);
+			NextSlide();
+		}
+
+		private void NextSlide()
 		{
 			Task.Factory.StartNew( () =>
 			{
@@ -114,6 +141,7 @@ namespace WatchThis.Controllers
 
 		public void Previous()
 		{
+			logger.Info("SlideshowDriver.Previous {0}", State);
 			int index;
 			if (_recentIndex.HasValue)
 			{
@@ -158,6 +186,7 @@ namespace WatchThis.Controllers
 
 		private void BeginEnumerate()
 		{
+			State = DriverState.Enumerating;
 			Task.Factory.StartNew( () => 
 				{
 					Model.Enumerate( () => 
@@ -169,7 +198,7 @@ namespace WatchThis.Controllers
 				{
 					if (t.IsCompleted)
 					{
-						if (IsPlaying)
+						if (State == DriverState.Playing || State == DriverState.Paused)
 						{
 							PlatformService.InvokeOnUiThread( delegate 
 								{

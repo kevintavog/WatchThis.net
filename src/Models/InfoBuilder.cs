@@ -114,7 +114,6 @@ namespace WatchThis.Models
 
 									if (wasEmpty && ItemsAvailable != null)
 									{
-										logger.Info("Some items available: {0} ...", ImageList.Count);
 										ItemsAvailable();
 									}
 								}
