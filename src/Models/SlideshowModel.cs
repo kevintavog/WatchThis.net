@@ -18,17 +18,14 @@ namespace WatchThis.Models
 
 		public string Filename { set; get; }
 		public string Name { set; get; }
-		public string BasePath { set; get; }
 		public double SlideSeconds { set; get; }
 		public double TransitionSeconds { set; get; }
 		public bool ManuallyControlled { set; get; }
 
-		public bool ShowOnce { set; get; }
-		public SlideOrder Order { set; get; }
+//		public bool ShowOnce { set; get; }
+//		public SlideOrder Order { set; get; }
 
 		public IList<FolderModel> FolderList { get; private set; }
-		public IList<Filter> FolderFilterList { get; private set; }
-		public IList<Filter> FileFilterList { get; private set; }
 
 		public List<ImageInformation> ImageList { get; set; }
 		private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -36,13 +33,11 @@ namespace WatchThis.Models
 
 		public SlideshowModel()
 		{
-			ShowOnce = true;
+//			ShowOnce = true;
+//			Order = SlideOrder.Random;
 			SlideSeconds = 10;
-			Order = SlideOrder.Random;
 			TransitionSeconds = 1;
 			FolderList = new List<FolderModel>();
-			FolderFilterList = new List<Filter>();
-			FileFilterList = new List<Filter>();
 			ImageList = new List<ImageInformation>();
 		}
 
@@ -51,70 +46,85 @@ namespace WatchThis.Models
 			var ssModel = new SlideshowModel();
 			var doc = XDocument.Parse(File.ReadAllText(filename));
 
-			ssModel.Name = doc.Root.Get("name", "");
-			ssModel.BasePath = doc.Root.Get("basePath", "");
-			ssModel.SlideSeconds = doc.Root.Get("slideDuration", ssModel.SlideSeconds);
-			ssModel.TransitionSeconds = doc.Root.Get("transitionDuration", ssModel.TransitionSeconds);
-
-			if (!Path.IsPathRooted(ssModel.BasePath))
+			if (!doc.Root.Name.LocalName.Equals(XmlRootName))
 			{
-				var rootPath = Path.GetDirectoryName(filename);
-				ssModel.BasePath = Path.GetFullPath(Path.Combine(rootPath, ssModel.BasePath));
+				throw new Exception(string.Format("Wrong namespace '{0}', expected {1}", doc.Root.Name.LocalName,XmlRootName));
+			}
+
+			ssModel.Filename = filename;
+			ssModel.Name = doc.Root.Get(XmlAttrName, "");
+			ssModel.SlideSeconds = doc.Root.Get(XmlAttrSlideDuration, ssModel.SlideSeconds);
+			ssModel.TransitionSeconds = doc.Root.Get(XmlAttrTransitionDuration, ssModel.TransitionSeconds);
+
+			foreach (var a in doc.Root.Attributes())
+			{
+				if (!expectedAttributes.Contains(a.Name.LocalName))
+				{
+					throw new Exception(string.Format("Unexpected attribute: {0}", a.Name.LocalName));
+				}
 			}
 
 			foreach (var f in doc.Descendants("folder"))
 			{
 				ssModel.FolderList.Add(FolderModel.FromElement(f));
 			}
-
-			var folderFilter = doc.Descendants("folderFilter").FirstOrDefault();
-			if (folderFilter != null)
+			if (ssModel.FolderList.Count < 1)
 			{
-				foreach (var f in folderFilter.Descendants())
+				throw new Exception("Missing 'folder' tag");
+			}
+
+			foreach (var e in doc.Root.Elements())
+			{
+				if (!expectedElements.Contains(e.Name.LocalName))
 				{
-					ssModel.FolderFilterList.Add(Filter.FromElement(f));
+					throw new Exception(string.Format("Unexpected element: {0}", e.Name.LocalName));
 				}
 			}
 
-			var fileFilter = doc.Descendants("fileFilter").FirstOrDefault();
-			if (fileFilter != null)
-			{
-				foreach (var f in fileFilter.Descendants())
-				{
-					ssModel.FileFilterList.Add(Filter.FromElement(f));
-				}
-			}
 			return ssModel;
 		}
 
 		public void Enumerate(Action itemsAvailable = null)
 		{
-logger.Info("Enumerating...");
+			logger.Info("Enumeration started");
 			List<ImageInformation> allFiles = (List<ImageInformation>)ImageList;
 			allFiles.Clear();
 
 			Queue<string> filenames = new Queue<string>();
 
+			var relativePath = Path.GetDirectoryName(Filename);
 			var builder = new InfoBuilder() { FilenameQueue = filenames, ImageList = allFiles, ItemsAvailable = itemsAvailable };
-			builder.Start(4);
+			builder.Start(3);
 			foreach (var fm in FolderList)
 			{
-				var absolutePath = Path.Combine(BasePath, fm.Path);
-				try
+				var path = Path.Combine(fm.Path);
+				if (!Path.IsPathRooted(path))
 				{
-					FileEnumerator.AddFilenames(
-						filenames,
-						absolutePath,
-						(s) => SupportedExtension(Path.GetExtension(s)));
+					path = Path.GetFullPath(Path.Combine(relativePath, path));
 				}
-				catch (Exception ex)
+
+				if (Directory.Exists(path))
 				{
-					logger.Info("Exception: {0}", ex);
+					try
+					{
+						FileEnumerator.AddFilenames(
+							filenames,
+							path,
+							(s) => SupportedExtension(Path.GetExtension(s)));
+					}
+					catch (Exception ex)
+					{
+						logger.Info("Exception: {0}", ex);
+					}
+				}
+				else
+				{
+					logger.Warn("Ignoring non-existent path: '{0}'",  path);
 				}
 			}
 
 			builder.WaitForCompletion();
-			logger.Info("Enumeration complete");
+			logger.Info("Enumeration completed");
 		}
 
 		bool SupportedExtension(string extension)
@@ -123,6 +133,25 @@ logger.Info("Enumerating...");
 					extension.Equals(".jpeg", StringComparison.InvariantCultureIgnoreCase) ||
 					extension.Equals(".png", StringComparison.InvariantCultureIgnoreCase);
 		}
+
+		const string XmlRootName = "com.rangic.Slideshow";
+
+		const string XmlEleFolder = "folder";
+		static string[] expectedElements = new []
+		{
+			XmlEleFolder,
+		};
+
+		const string XmlAttrName = "name";
+		const string XmlAttrSlideDuration = "slideDuration";
+		const string XmlAttrTransitionDuration = "transitionDuration";
+
+		static string[] expectedAttributes = new []
+		{
+			XmlAttrName,
+			XmlAttrSlideDuration,
+			XmlAttrTransitionDuration
+		};
 	}
 
 	class InfoBuilder
@@ -212,7 +241,6 @@ logger.Info("Enumerating...");
 											if (!curFile.Name.Equals(priorFile.Name) || !curFile.CreationTime.Equals(priorFile.CreationTime))
 											{
 												Interlocked.Increment(ref _questionableDuplicates);
-//												logger.Info("Skipping duplicate: {0} (original = {1})", filename, priorFile.FullName);
 											}
 											continue;
 										}
@@ -264,7 +292,6 @@ logger.Info("Enumerating...");
 			{
 				if (_signature == null)
 				{
-#if true
 					// Yes, if a file is less than the data read, we calculate the signature with a bunch
 					// of zero byte values. It seems better than re-allocating the byte array to the proper
 					// size in that case; the affect is the same, I claim.
@@ -274,18 +301,31 @@ logger.Info("Enumerating...");
 						stream.Read(data, 0, data.Length);
 					}
 					_signature = BitConverter.ToString(SHA256.Create().ComputeHash(data)) + new FileInfo(Filename).Length;
-#else
-					using (var stream = File.OpenRead(Filename))
-					{
-						_signature = BitConverter.ToString(SHA256.Create().ComputeHash(stream));
-					}
-#endif
 				}
 				return _signature;
 			}
 		}
 	}
 
+#if false
+	var folderFilter = doc.Descendants("folderFilter").FirstOrDefault();
+	if (folderFilter != null)
+	{
+		foreach (var f in folderFilter.Descendants())
+		{
+			ssModel.FolderFilterList.Add(Filter.FromElement(f));
+		}
+	}
+
+	var fileFilter = doc.Descendants("fileFilter").FirstOrDefault();
+	if (fileFilter != null)
+	{
+		foreach (var f in fileFilter.Descendants())
+		{
+			ssModel.FileFilterList.Add(Filter.FromElement(f));
+		}
+	}
+#endif
 	public class FolderModel
 	{
 		public string Path { set; get; }

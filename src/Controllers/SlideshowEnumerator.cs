@@ -51,7 +51,7 @@ namespace WatchThis.Controllers
 						}
 						catch (Exception ex)
 						{
-							logger.Error("Exception parsing '{0}': {1}", name, ex);
+							logger.Error("Error parsing '{0}': {1}", name, ex.Message);
 						}
 					}
 

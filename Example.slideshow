@@ -1,0 +1,10 @@
+<com.rangic.Slideshow 
+		name="The good ones" 
+		slideDuration="5.4" 
+		transitionDuration="0.8" >
+
+	<folder path="../AllMyPhotos/Best" />
+	<folder path="../AllMyPhotos/Second Best" />
+	<folder path="../AllMyPhotos/Kinda lousy" />
+
+</com.rangic.Slideshow>
