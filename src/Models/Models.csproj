@@ -41,6 +41,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SlideshowModel.cs" />
     <Compile Include="ImageInformation.cs" />
+    <Compile Include="InfoBuilder.cs" />
+    <Compile Include="FileSignature.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
