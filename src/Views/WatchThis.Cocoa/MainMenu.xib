@@ -123,6 +123,19 @@ DQ
                                     <action selector="previousImage:" target="-1" id="o4A-4a-qRi"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Pause / Resume" keyEquivalent=" " id="7eS-qy-0mS">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="pauseResume:" target="-1" id="FZs-wr-2FH"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="xGO-7v-8wF"/>
+                            <menuItem title="Enter Full Screen" keyEquivalent="f" id="1Hn-ze-X63">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                <connections>
+                                    <action selector="toggleFullScreen:" target="-1" id="wZM-Sv-7y6"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

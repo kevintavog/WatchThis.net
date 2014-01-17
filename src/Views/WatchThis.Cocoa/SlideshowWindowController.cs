@@ -114,6 +114,10 @@ namespace WatchThis
 			driver.Previous();
 		}
 
+		partial void pauseResume(MonoMac.Foundation.NSObject sender)
+		{
+			driver.PauseOrResume();
+		}
 
 		public void Error(string message)
 		{

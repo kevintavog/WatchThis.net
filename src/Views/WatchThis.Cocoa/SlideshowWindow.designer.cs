@@ -15,6 +15,9 @@ namespace WatchThis
 		[Action ("nextImage:")]
 		partial void nextImage (MonoMac.Foundation.NSObject sender);
 
+		[Action ("pauseResume:")]
+		partial void pauseResume (MonoMac.Foundation.NSObject sender);
+
 		[Action ("previousImage:")]
 		partial void previousImage (MonoMac.Foundation.NSObject sender);
 		

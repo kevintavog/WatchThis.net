@@ -77,15 +77,22 @@ namespace WatchThis.Controllers
 			Next();
 		}
 
-		public void Pause()
+		public void PauseOrResume()
 		{
 			logger.Info("SlideshowDriver.Pause: {0}", State);
-			State = DriverState.Paused;
-			if (_timer != null)
+			if (State == DriverState.Paused)
 			{
-				_timer.Stop();
-				_timer.Dispose();
-				_timer = null;
+				Play();
+			}
+			else if (State == DriverState.Playing)
+			{
+				State = DriverState.Paused;
+				if (_timer != null)
+				{
+					_timer.Stop();
+					_timer.Dispose();
+					_timer = null;
+				}
 			}
 		}
 
