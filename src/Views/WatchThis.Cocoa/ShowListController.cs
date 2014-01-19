@@ -69,6 +69,48 @@ namespace WatchThis
 				this);
 		}
 
+
+		partial void addNewFolder(MonoMac.Foundation.NSObject sender)
+		{
+			// Pull up the browse for folder dialog
+			logger.Info("Browse for folder");
+			var openPanel = new NSOpenPanel();
+			openPanel.ReleasedWhenClosed = true;
+			openPanel.Prompt = "Select folder";
+			openPanel.CanChooseDirectories = true;
+			openPanel.CanChooseFiles = false;
+			var result = openPanel.RunModal();
+			if (result == 1)
+			{
+				_newSlideshow.FolderList.Add(new FolderModel { Path = openPanel.Url.Path, Recursive = true });
+				folderTableView.ReloadData();
+			}
+		}
+
+		partial void removeNewFolder(MonoMac.Foundation.NSObject sender)
+		{
+			// Remove the selected folder
+			if (folderTableView.SelectedRow >= 0)
+			{
+				var item = _newSlideshow.FolderList[folderTableView.SelectedRow];
+				var alert = NSAlert.WithMessage(
+					string.Format("Are you sure you want to remove '{0}' from the list?", item.Path),
+					"No",
+					"Yes",
+					"Cancel",
+					"");
+				NSAlertType response = (NSAlertType)alert.RunSheetModal(Window);
+				logger.Info("{0}", response);
+				if (response == NSAlertType.AlternateReturn)
+				{
+					logger.Info("Remove selected folder {0}", item.Path);
+					_newSlideshow.FolderList.Remove(item);
+					folderTableView.ReloadData();
+				}
+			}
+		}
+
+
 		partial void runNewSlideshow(MonoMac.Foundation.NSObject sender)
 		{
 			var table = tabView.Selected.Identifier.ToString().Equals("New") ? folderTableView : tableView;
