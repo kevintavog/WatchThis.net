@@ -13,6 +13,7 @@ namespace WatchThis
 	public partial class ShowListController : MonoMac.AppKit.NSWindowController, ISlideshowListViewer, IPlatformService
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private SlideshowModel _newSlideshow = new SlideshowModel();
 		private IList<SlideshowModel> _slideshows = new List<SlideshowModel>();
 
 #region Constructors
@@ -36,13 +37,6 @@ namespace WatchThis
 
 		void Initialize()
 		{
-			SlideshowEnumerator.FindSlideshows(
-				Path.Combine(
-					Environment.GetFolderPath(Environment.SpecialFolder.Personal),
-					"Pictures",
-					"slideshows"),
-				this,
-				this);
 		}
 
 #endregion
@@ -55,41 +49,117 @@ namespace WatchThis
 			}
 		}
 
-		public override void WindowDidLoad()
+		public override void AwakeFromNib()
 		{
-			base.WindowDidLoad();
+			base.AwakeFromNib();
+
+			Window.RegisterForDraggedTypes(new string[] { NSPasteboard.NSFilenamesType } );
+			Window.DropAction = (l) => DroppedPaths(l);
 
 			tableView.DoubleClick += (sender, e) => runSlideshow();
+			slideDurationStepper.Activated += (sender, e) => StepperDidChange();
+			UpdateControls();
+
+			SlideshowEnumerator.FindSlideshows(
+				Path.Combine(
+					Environment.GetFolderPath(Environment.SpecialFolder.Personal),
+					"Pictures",
+					"slideshows"),
+				this,
+				this);
 		}
 
-		partial void runSlideshow(MonoMac.Foundation.NSObject sender)
+		partial void RunSlideshow(MonoMac.Foundation.NSObject sender)
 		{
-			runSlideshow();
+			var table = sender as NSTableView;
+			if (table == null && sender is NSButton)
+			{
+				table = tabView.Selected.Identifier.ToString().Equals("New") ? folderTableView : tableView;
+			}
+
+			if (table != null)
+			{
+				SlideshowModel model = null;
+				switch (table.Tag)
+				{
+					case 0:
+						model = _newSlideshow;
+						break;
+					case 1:
+						model = _slideshows[tableView.SelectedRow];
+						break;
+				}
+
+				if (model != null)
+				{
+					RunSlideshow(model);
+				}
+			}
 		}
 
+		void StepperDidChange()
+		{
+			_newSlideshow.SlideSeconds = slideDurationStepper.IntValue;
+			UpdateControls();
+		}
+
+		private void UpdateControls()
+		{
+			slideDurationStepper.IntValue = (int)_newSlideshow.SlideSeconds;
+			slideDuration.IntegerValue = (int)_newSlideshow.SlideSeconds;
+		}
 
 		[Export("doubleAction")]
 		public void runSlideshow()
 		{
-			logger.Info("runSlideshow {0}", _slideshows[tableView.SelectedRow].Name);
+			RunSlideshow(tabView.Selected.Identifier.ToString().Equals("New") ? folderTableView : tableView);
+		}
 
+		void RunSlideshow(SlideshowModel model)
+		{
 			var controller = new SlideshowWindowController();
-			controller.Model = _slideshows[tableView.SelectedRow];
+			controller.Model = model;
 			controller.Window.MakeKeyAndOrderFront(this);
 		}
 
 		[Export("numberOfRowsInTableView:")]
 		public int numberOfRowsInTableView(NSTableView tv)
 		{
-			return _slideshows.Count;
+			switch (tv.Tag)
+			{
+				case 0:
+					return _newSlideshow.FolderList.Count;
+				case 1:
+					return _slideshows.Count;
+			}
+
+			logger.Error("Unexpected numberOfRowsinTableView: {0}", tv.Tag);
+			return 0;
 		}
 
 		[Export("tableView:objectValueForTableColumn:row:")]
 		public string objectValueForTableColumn(NSTableView table, NSTableColumn column, int rowIndex)
 		{
-			var model = _slideshows[rowIndex];
-			return model.Name;
+			switch (table.Tag)
+			{
+				case 0:
+					return _newSlideshow.FolderList[rowIndex].Path;
+				case 1:
+					return _slideshows[rowIndex].Name;
+			}
+
+			return "<Error!>";
 		}
+
+		private void DroppedPaths(IList<string> paths)
+		{
+			foreach (var s in paths)
+			{
+				_newSlideshow.FolderList.Add(new FolderModel { Path = s, Recursive = true });
+			}
+			folderTableView.ReloadData();
+		}
+
 
 		public void EnumerationCompleted(IList<SlideshowModel> slideshowModels)
 		{

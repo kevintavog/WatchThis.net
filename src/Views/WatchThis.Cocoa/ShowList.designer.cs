@@ -13,16 +13,48 @@ namespace WatchThis
 	partial class ShowListController
 	{
 		[Outlet]
+		MonoMac.AppKit.NSTableView folderTableView { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField slideDuration { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSStepper slideDurationStepper { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTableView tableView { get; set; }
 
+		[Outlet]
+		MonoMac.AppKit.NSTabView tabView { get; set; }
+
 		[Action ("runSlideshow:")]
-		partial void runSlideshow (MonoMac.Foundation.NSObject sender);
+		partial void RunSlideshow (MonoMac.Foundation.NSObject sender);
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (tabView != null) {
+				tabView.Dispose ();
+				tabView = null;
+			}
+
+			if (slideDuration != null) {
+				slideDuration.Dispose ();
+				slideDuration = null;
+			}
+
+			if (slideDurationStepper != null) {
+				slideDurationStepper.Dispose ();
+				slideDurationStepper = null;
+			}
+
 			if (tableView != null) {
 				tableView.Dispose ();
 				tableView = null;
+			}
+
+			if (folderTableView != null) {
+				folderTableView.Dispose ();
+				folderTableView = null;
 			}
 		}
 	}

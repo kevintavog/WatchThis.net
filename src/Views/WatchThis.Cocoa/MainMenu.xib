@@ -87,6 +87,7 @@
                                     </items>
                                 </menu>
                             </menuItem>
+                            <menuItem title="Open Slideshow Folder" keyEquivalent="f" id="mzH-Nw-Q0c"/>
                             <menuItem isSeparatorItem="YES" id="79">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
@@ -95,6 +96,8 @@
                                     <action selector="performClose:" target="-1" id="193"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="Dn7-ne-SmG"/>
+                            <menuItem title="Save" keyEquivalent="s" id="mTL-Hv-KhG"/>
                         </items>
                     </menu>
                 </menuItem>
@@ -136,6 +139,13 @@ DQ
                                     <action selector="toggleFullScreen:" target="-1" id="wZM-Sv-7y6"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="YsM-UH-cOW"/>
+                            <menuItem title="Create tab" id="8vc-71-ECD">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Saved tab" id="arU-pe-PGd">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
@@ -151,6 +161,12 @@ DQ
                                 <connections>
                                     <action selector="performZoom:" target="-1" id="240"/>
                                 </connections>
+                            </menuItem>
+                            <menuItem title="Show Next Tab" id="TYL-f1-SS4">
+                                <string key="keyEquivalent" base64-UTF8="YES">
+CQ
+</string>
+                                <modifierMask key="keyEquivalentModifierMask" control="YES"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="92">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
