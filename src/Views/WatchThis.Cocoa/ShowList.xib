@@ -100,7 +100,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <stepper horizontalHuggingPriority="750" verticalHuggingPriority="750" id="4Y4-M3-UNT">
-                                            <rect key="frame" x="282" y="16" width="19" height="27"/>
+                                            <rect key="frame" x="270" y="16" width="19" height="27"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <stepperCell key="cell" continuous="YES" alignment="left" minValue="1" maxValue="10000" doubleValue="1" valueWraps="YES" id="KAH-RZ-W6E"/>
                                         </stepper>
@@ -124,7 +124,29 @@ DQ
 </string>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="runSlideshow:" target="-2" id="EeF-R1-kG2"/>
+                                                <action selector="runNewSlideshow:" target="-2" id="gSJ-Jq-1Y9"/>
+                                            </connections>
+                                        </button>
+                                        <button verticalHuggingPriority="750" id="Q8l-cj-1xu">
+                                            <rect key="frame" x="17" y="50" width="70" height="25"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="roundTextured" title="Add" bezelStyle="texturedRounded" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="0w1-gl-pig">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="addNewFolder:" target="-2" id="HAU-I0-25m"/>
+                                            </connections>
+                                        </button>
+                                        <button verticalHuggingPriority="750" id="yWD-PV-taF">
+                                            <rect key="frame" x="94" y="50" width="70" height="25"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="roundTextured" title="Remove" bezelStyle="texturedRounded" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="qHF-Gi-TMT">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="removeNewFolder:" target="-2" id="Cd3-43-zuq"/>
                                             </connections>
                                         </button>
                                     </subviews>

@@ -69,14 +69,15 @@ namespace WatchThis
 				this);
 		}
 
-		partial void RunSlideshow(MonoMac.Foundation.NSObject sender)
+		partial void runNewSlideshow(MonoMac.Foundation.NSObject sender)
+		{
+			var table = tabView.Selected.Identifier.ToString().Equals("New") ? folderTableView : tableView;
+			runSlideshow(table);
+		}
+
+		partial void runSlideshow(MonoMac.Foundation.NSObject sender)
 		{
 			var table = sender as NSTableView;
-			if (table == null && sender is NSButton)
-			{
-				table = tabView.Selected.Identifier.ToString().Equals("New") ? folderTableView : tableView;
-			}
-
 			if (table != null)
 			{
 				SlideshowModel model = null;
@@ -92,7 +93,7 @@ namespace WatchThis
 
 				if (model != null)
 				{
-					RunSlideshow(model);
+					RunSlideshowModel(model);
 				}
 			}
 		}
@@ -112,10 +113,10 @@ namespace WatchThis
 		[Export("doubleAction")]
 		public void runSlideshow()
 		{
-			RunSlideshow(tabView.Selected.Identifier.ToString().Equals("New") ? folderTableView : tableView);
+			runSlideshow(tabView.Selected.Identifier.ToString().Equals("New") ? folderTableView : tableView);
 		}
 
-		void RunSlideshow(SlideshowModel model)
+		void RunSlideshowModel(SlideshowModel model)
 		{
 			var controller = new SlideshowWindowController();
 			controller.Model = model;

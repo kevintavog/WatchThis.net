@@ -27,14 +27,23 @@ namespace WatchThis
 		[Outlet]
 		MonoMac.AppKit.NSTabView tabView { get; set; }
 
+		[Action ("addNewFolder:")]
+		partial void addNewFolder (MonoMac.Foundation.NSObject sender);
+
+		[Action ("removeNewFolder:")]
+		partial void removeNewFolder (MonoMac.Foundation.NSObject sender);
+
+		[Action ("runNewSlideshow:")]
+		partial void runNewSlideshow (MonoMac.Foundation.NSObject sender);
+
 		[Action ("runSlideshow:")]
-		partial void RunSlideshow (MonoMac.Foundation.NSObject sender);
+		partial void runSlideshow (MonoMac.Foundation.NSObject sender);
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (tabView != null) {
-				tabView.Dispose ();
-				tabView = null;
+			if (folderTableView != null) {
+				folderTableView.Dispose ();
+				folderTableView = null;
 			}
 
 			if (slideDuration != null) {
@@ -52,9 +61,9 @@ namespace WatchThis
 				tableView = null;
 			}
 
-			if (folderTableView != null) {
-				folderTableView.Dispose ();
-				folderTableView = null;
+			if (tabView != null) {
+				tabView.Dispose ();
+				tabView = null;
 			}
 		}
 	}
