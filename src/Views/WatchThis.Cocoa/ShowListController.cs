@@ -61,10 +61,7 @@ namespace WatchThis
 			UpdateControls();
 
 			SlideshowEnumerator.FindSlideshows(
-				Path.Combine(
-					Environment.GetFolderPath(Environment.SpecialFolder.Personal),
-					"Pictures",
-					"slideshows"),
+				Preferences.Instance.SlideshowwPath,
 				this,
 				this);
 		}
@@ -72,24 +69,29 @@ namespace WatchThis
 
 		partial void addNewFolder(MonoMac.Foundation.NSObject sender)
 		{
-			// Pull up the browse for folder dialog
 			logger.Info("Browse for folder");
-			var openPanel = new NSOpenPanel();
-			openPanel.ReleasedWhenClosed = true;
-			openPanel.Prompt = "Select folder";
-			openPanel.CanChooseDirectories = true;
-			openPanel.CanChooseFiles = false;
-			var result = openPanel.RunModal();
-			if (result == 1)
+			var openPanel = new NSOpenPanel
+			{
+				ReleasedWhenClosed = true,
+				Prompt = "Select folder",
+				CanChooseDirectories = true,
+				CanChooseFiles = false
+			};
+
+			var result = (NsButtonId)openPanel.RunModal();
+			if (result == NsButtonId.OK)
 			{
 				_newSlideshow.FolderList.Add(new FolderModel { Path = openPanel.Url.Path, Recursive = true });
+
+				// TODO: Insert the row properly
 				folderTableView.ReloadData();
 			}
 		}
 
 		partial void removeNewFolder(MonoMac.Foundation.NSObject sender)
 		{
-			// Remove the selected folder
+			// TODO: Allow multi-select (and make sure the message is understandable with 20 items selected)
+			// Remove the selected folders
 			if (folderTableView.SelectedRow >= 0)
 			{
 				var item = _newSlideshow.FolderList[folderTableView.SelectedRow];
@@ -99,17 +101,78 @@ namespace WatchThis
 					"Yes",
 					"Cancel",
 					"");
-				NSAlertType response = (NSAlertType)alert.RunSheetModal(Window);
+				var response = (NSAlertType)alert.RunSheetModal(Window);
 				logger.Info("{0}", response);
 				if (response == NSAlertType.AlternateReturn)
 				{
 					logger.Info("Remove selected folder {0}", item.Path);
 					_newSlideshow.FolderList.Remove(item);
+
+					// TODO: Remove the rows properly
 					folderTableView.ReloadData();
 				}
 			}
 		}
 
+		partial void saveSlideshow(MonoMac.Foundation.NSObject sender)
+		{
+			logger.Info("Saving slideshow");
+			var savePanel = new NSSavePanel
+			{
+				Prompt = "Save slideshow",
+				CanCreateDirectories = true,
+				DirectoryUrl = NSUrl.FromFilename(Preferences.Instance.SlideshowwPath)
+			};
+
+			var result = (NsButtonId)savePanel.RunModal();
+			if (result == NsButtonId.OK)
+			{
+				try
+				{
+					var filename = savePanel.Url.Path;
+					_newSlideshow.Name = Path.GetFileNameWithoutExtension(filename);
+					_newSlideshow.Save(filename);
+
+					SlideshowEnumerator.FindSlideshows(
+						Preferences.Instance.SlideshowwPath,
+						this,
+						this);
+				}
+				catch (Exception ex)
+				{
+					var alert = NSAlert.WithMessage(
+						string.Format("Failed saving '{0}'; {1}", savePanel.Url.Path, ex.Message),
+						"Close",
+						"",
+						"",
+						"");
+					alert.RunSheetModal(Window);
+				}
+			}
+		}
+
+		partial void openSlideshowFolder(MonoMac.Foundation.NSObject sender)
+		{
+			logger.Info("open slideshow folder");
+			var openPanel = new NSOpenPanel
+			{
+				ReleasedWhenClosed = true,
+				Prompt = "Select folder",
+				CanChooseDirectories = true,
+				CanChooseFiles = false
+			};
+
+			var result = (NsButtonId)openPanel.RunModal();
+			if (result == NsButtonId.OK)
+			{
+				Preferences.Instance.SlideshowwPath = openPanel.Url.Path;
+
+				SlideshowEnumerator.FindSlideshows(
+					Preferences.Instance.SlideshowwPath,
+					this,
+					this);
+			}
+		}
 
 		partial void runNewSlideshow(MonoMac.Foundation.NSObject sender)
 		{

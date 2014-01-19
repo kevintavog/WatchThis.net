@@ -66,11 +66,6 @@
                 <menuItem title="File" id="83">
                     <menu key="submenu" title="File" id="81">
                         <items>
-                            <menuItem title="New" keyEquivalent="n" id="82">
-                                <connections>
-                                    <action selector="newDocument:" target="-1" id="373"/>
-                                </connections>
-                            </menuItem>
                             <menuItem title="Open…" keyEquivalent="o" id="72">
                                 <connections>
                                     <action selector="openDocument:" target="-1" id="374"/>
@@ -87,7 +82,11 @@
                                     </items>
                                 </menu>
                             </menuItem>
-                            <menuItem title="Open Slideshow Folder" keyEquivalent="f" id="mzH-Nw-Q0c"/>
+                            <menuItem title="Open Slideshow Folder" keyEquivalent="f" id="mzH-Nw-Q0c">
+                                <connections>
+                                    <action selector="openSlideshowFolder:" target="-1" id="pfo-tp-ekO"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="79">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
@@ -97,7 +96,11 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="Dn7-ne-SmG"/>
-                            <menuItem title="Save" keyEquivalent="s" id="mTL-Hv-KhG"/>
+                            <menuItem title="Save As..." keyEquivalent="s" id="mTL-Hv-KhG">
+                                <connections>
+                                    <action selector="saveSlideshow:" target="-1" id="k1t-j2-qKV"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

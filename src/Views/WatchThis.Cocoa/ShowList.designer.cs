@@ -30,6 +30,9 @@ namespace WatchThis
 		[Action ("addNewFolder:")]
 		partial void addNewFolder (MonoMac.Foundation.NSObject sender);
 
+		[Action ("openSlideshowFolder:")]
+		partial void openSlideshowFolder (MonoMac.Foundation.NSObject sender);
+
 		[Action ("removeNewFolder:")]
 		partial void removeNewFolder (MonoMac.Foundation.NSObject sender);
 
@@ -38,6 +41,9 @@ namespace WatchThis
 
 		[Action ("runSlideshow:")]
 		partial void runSlideshow (MonoMac.Foundation.NSObject sender);
+
+		[Action ("saveSlideshow:")]
+		partial void saveSlideshow (MonoMac.Foundation.NSObject sender);
 		
 		void ReleaseDesignerOutlets ()
 		{

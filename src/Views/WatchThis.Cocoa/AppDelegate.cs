@@ -1,8 +1,8 @@
 using System;
-using System.Drawing;
+using System.IO;
+using WatchThis.Models;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
-using MonoMac.ObjCRuntime;
 
 namespace WatchThis
 {
@@ -15,13 +15,14 @@ namespace WatchThis
 
 		public override void FinishedLaunching(NSObject notification)
 		{
-#if true
+			Preferences.Load(Path.Combine(
+				Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+				"Library",
+				"Preferences",
+				"com.rangic.WatchThis.xml"));
+
 			var controller = new ShowListController();
 			controller.Window.MakeKeyAndOrderFront(this);
-#else
-			var slideshowWindowController = new SlideshowWindowController();
-			slideshowWindowController.Window.MakeKeyAndOrderFront(this);
-#endif
 		}
 	}
 }

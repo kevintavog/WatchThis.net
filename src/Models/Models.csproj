@@ -43,6 +43,7 @@
     <Compile Include="ImageInformation.cs" />
     <Compile Include="InfoBuilder.cs" />
     <Compile Include="FileSignature.cs" />
+    <Compile Include="Preferences.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

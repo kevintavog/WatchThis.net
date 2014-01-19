@@ -96,6 +96,7 @@
     <Compile Include="ShowList.designer.cs">
       <DependentUpon>ShowList.cs</DependentUpon>
     </Compile>
+    <Compile Include="CocoaTypes.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainMenu.xib" />

@@ -52,9 +52,9 @@ namespace WatchThis.Models
 			}
 
 			ssModel.Filename = filename;
-			ssModel.Name = doc.Root.Get(XmlAttrName, "");
-			ssModel.SlideSeconds = doc.Root.Get(XmlAttrSlideDuration, ssModel.SlideSeconds);
-			ssModel.TransitionSeconds = doc.Root.Get(XmlAttrTransitionDuration, ssModel.TransitionSeconds);
+			ssModel.Name = doc.Root.GetAttribute(XmlAttrName, "");
+			ssModel.SlideSeconds = doc.Root.GetAttribute(XmlAttrSlideDuration, ssModel.SlideSeconds);
+			ssModel.TransitionSeconds = doc.Root.GetAttribute(XmlAttrTransitionDuration, ssModel.TransitionSeconds);
 
 			foreach (var a in doc.Root.Attributes())
 			{
@@ -82,6 +82,28 @@ namespace WatchThis.Models
 			}
 
 			return ssModel;
+		}
+
+		public void Save(string filename)
+		{
+			var xml = new XDocument(
+				new XElement(XmlRootName,
+					new XAttribute(XmlAttrName, Name),
+					new XAttribute(XmlAttrSlideDuration, SlideSeconds),
+					new XAttribute(XmlAttrTransitionDuration, TransitionSeconds)));
+
+			foreach (var fm in FolderList)
+			{
+				xml.Root.Add(
+					new XElement("folder", 
+						new XAttribute("path", fm.Path)));
+			}
+
+			if (!filename.EndsWith(Extension, StringComparison.OrdinalIgnoreCase))
+			{
+				filename += Extension;
+			}
+			File.WriteAllText(filename, xml.ToString());
 		}
 
 		public void Enumerate(Action itemsAvailable = null)
@@ -182,8 +204,8 @@ namespace WatchThis.Models
 		{
 			return new FolderModel 
 				{
-					Path = element.Get("path", null),
-					Recursive = element.Get("recursive", false)
+					Path = element.GetAttribute("path", null),
+					Recursive = element.GetAttribute("recursive", true)
 				};
 		}
 	}
@@ -198,7 +220,7 @@ namespace WatchThis.Models
 			return new Filter
 				{
 					Exclude = element.Name.ToString().Equals("exclude"),
-					Name = element.Get("name", null)
+					Name = element.GetAttribute("name", null)
 				};
 		}
 	}
