@@ -12,6 +12,8 @@ namespace WatchThis.Models
 		static public Preferences Instance { get; private set; }
 		public string SlideshowwPath { get; set; }
 
+        private string Filename { get; set; }
+
 		private Preferences()
 		{
 			SlideshowwPath = Path.Combine(
@@ -19,9 +21,15 @@ namespace WatchThis.Models
 				"slideshows");
 		}
 
+        public void Save()
+        {
+            Save(Filename);
+        }
+
 		static public Preferences Load(string filename)
 		{
 			Instance = new Preferences();
+            Instance.Filename = filename;
 			if (File.Exists(filename))
 			{
 				try

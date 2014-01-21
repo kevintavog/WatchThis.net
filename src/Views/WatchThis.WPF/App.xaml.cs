@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows;
+using WatchThis.Models;
 
 namespace WatchThis.Wpf
 {
@@ -13,5 +10,12 @@ namespace WatchThis.Wpf
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            Preferences.Load(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "WatchThis",
+                "preferences.xml"));
+        }
     }
 }
