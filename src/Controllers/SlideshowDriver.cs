@@ -1,9 +1,11 @@
-using System;
-using System.Timers;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using NLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using System.Timers;
 using WatchThis.Models;
+using WatchThis.Utilities;
 
 namespace WatchThis.Controllers
 {
@@ -22,13 +24,32 @@ namespace WatchThis.Controllers
 	/// All calls to the viewer are on the main/UI thread in order to minimize threading issues in
 	/// the various UI implementations.
 	/// </summary>
-	public class SlideshowDriver
+    public class SlideshowDriver : INotifyPropertyChanged
 	{
 		public SlideshowModel Model { get; private set; }
 		public ISlideshowViewer Viewer { get; private set; }
 		public IPlatformService PlatformService { get; private set; }
 
-		private DriverState State { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+        public bool IsPaused { get { return State == DriverState.Paused; } }
+        public bool IsPlaying { get { return State == DriverState.Playing; } }
+
+		private DriverState State 
+        {
+            get { return _state; }
+            set
+            {
+                _state = value;
+
+                PlatformService.InvokeOnUiThread(delegate 
+                {
+                    this.FirePropertyChanged(PropertyChanged, () => IsPaused);
+                    this.FirePropertyChanged(PropertyChanged, () => IsPlaying);
+                });
+            } 
+        }
+
+        private DriverState _state;
 
 		private Timer _timer;
 		private Random _random = new Random();
@@ -66,14 +87,7 @@ namespace WatchThis.Controllers
 			}
 
 			State = DriverState.Playing;
-			var time = (Model.SlideSeconds + Model.TransitionSeconds) * 1000;
-			if (time < 100)
-			{
-				time = 100;
-			}
-			_timer = new Timer(time) { AutoReset = true, Enabled = true };
-			_timer.Elapsed += (s, e) => NextSlide();
-
+            SetupTimer();
 			Next();
 		}
 
@@ -87,12 +101,7 @@ namespace WatchThis.Controllers
 			else if (State == DriverState.Playing)
 			{
 				State = DriverState.Paused;
-				if (_timer != null)
-				{
-					_timer.Stop();
-					_timer.Dispose();
-					_timer = null;
-				}
+                DestroyTimer();
 			}
 		}
 
@@ -100,11 +109,7 @@ namespace WatchThis.Controllers
 		{
 			logger.Info("SlideshowDriver.Stop {0}", State);
 			State = DriverState.Stopped;
-			if (_timer != null)
-			{
-				_timer.Stop();
-				_timer = null;
-			}
+            DestroyTimer();
 		}
 
 		public void Next()
@@ -123,25 +128,32 @@ namespace WatchThis.Controllers
 				}
 				else
 				{
-					_timer.Stop();
-					_timer.Start();
-					if (_recentIndex.HasValue)
-					{
-						++_recentIndex;
-						if (_recentIndex < _recent.Count)
-						{
-							DisplayRequest(_recent[_recentIndex.Value]);
-						}
-						else
-						{
-							_recentIndex = null;
-						}
-					}
+                    if (State != DriverState.Stopped)
+                    {
+                        if (State == DriverState.Paused)
+                        {
+                            SetupTimer();
+                        }
+                        ResetTimer();
 
-					if (!_recentIndex.HasValue)
-					{
-						DisplayRequest(NextRandom());
-					}
+                        if (_recentIndex.HasValue)
+                        {
+                            ++_recentIndex;
+                            if (_recentIndex < _recent.Count)
+                            {
+                                DisplayRequest(_recent[_recentIndex.Value]);
+                            }
+                            else
+                            {
+                                _recentIndex = null;
+                            }
+                        }
+
+                        if (!_recentIndex.HasValue)
+                        {
+                            DisplayRequest(NextRandom());
+                        }
+                    }
 				}
 			});
 		}
@@ -164,8 +176,7 @@ namespace WatchThis.Controllers
 				return;
 			}
 
-			_timer.Stop();
-			_timer.Start();
+            ResetTimer();
 			_recentIndex = index;
 			DisplayRequest(_recent[_recentIndex.Value]);
 		}
@@ -185,7 +196,37 @@ namespace WatchThis.Controllers
 			return item;
 		}
 
-		// Ask the view to display an image
+        private void ResetTimer()
+        {
+            _timer.Stop();
+            _timer.Start();
+        }
+
+        private void SetupTimer()
+        {
+            if (_timer == null)
+            {
+                var time = (Model.SlideSeconds + Model.TransitionSeconds) * 1000;
+                if (time < 100)
+                {
+                    time = 100;
+                }
+                _timer = new Timer(time) { AutoReset = true, Enabled = true };
+                _timer.Elapsed += (s, e) => NextSlide();
+            }
+        }
+
+        private void DestroyTimer()
+        {
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer.Dispose();
+                _timer = null;
+            }
+        }
+
+        // Ask the view to display an image
 		private void DisplayRequest(ImageInformation info)
 		{
 			PlatformService.InvokeOnUiThread( delegate { Viewer.DisplayImage(info); } );

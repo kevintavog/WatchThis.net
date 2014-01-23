@@ -1,8 +1,68 @@
 ﻿<Window x:Class="WatchThis.Wpf.SlideshowWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="SlideshowWindow" Height="300" Width="300">
+        Title="SlideshowWindow" Height="300" Width="700"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        SizeChanged="WindowSizeChanged"
+        MouseMove="WindowMouseMove">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <RoutedUICommand x:Key="PreviousImage" Text="Previous image" />
+        <RoutedUICommand x:Key="Pause" Text="Pause" />
+        <RoutedUICommand x:Key="Resume" Text="Resume" />
+        <RoutedUICommand x:Key="NextImage" Text="Next image" />
+        <RoutedUICommand x:Key="ToggleFullScreen" Text="Toggle full screen" />
+        <RoutedUICommand x:Key="Close" Text="Close" />
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="{StaticResource PreviousImage}" Executed="PreviousImage" />
+        <CommandBinding Command="{StaticResource Pause}" Executed="PauseResume" />
+        <CommandBinding Command="{StaticResource Resume}" Executed="PauseResume" />
+        <CommandBinding Command="{StaticResource NextImage}" Executed="NextImage" />
+        <CommandBinding Command="{StaticResource ToggleFullScreen}" Executed="ToggleFullScreen" />
+        <CommandBinding Command="{StaticResource Close}" Executed="Close" />
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Command="{StaticResource PreviousImage}" Key="Left" Modifiers="" />
+        <KeyBinding Command="{StaticResource Pause}" Key="Space" Modifiers="" />
+        <KeyBinding Command="{StaticResource NextImage}" Key="Right" Modifiers="" />
+        <KeyBinding Command="{StaticResource ToggleFullScreen}" Key="F" Modifiers="" />
+        <KeyBinding Command="{StaticResource Close}" Key="Q" Modifiers="" />
+    </Window.InputBindings>
     <Grid Background="Black">
-        <Image Name="Image" Margin="0,0,0,0" Stretch="Uniform"/>
+        <Image Name="Image" Margin="0,0,0,0" Stretch="Uniform" />
+        <Canvas Name="Controls" >
+            <StackPanel Name="ControlsPanel" Canvas.Bottom="10" Orientation="Horizontal">
+                <Button Style="{StaticResource ControlButton}" Command="{StaticResource Close}" >
+                    <Image Source="pack://application:,,,/Resources/close.png"/>
+                </Button>
+                <Button Style="{StaticResource ControlButton}" Command="{StaticResource PreviousImage}" Margin="80,0,0,0" >
+                    <Image Source="pack://application:,,,/Resources/leftArrow.png"/>
+                </Button>
+                <Button Style="{StaticResource ControlButton}" Command="{StaticResource Pause}" Margin="40,0,0,0"
+                        Visibility="{Binding Path=Driver.IsPlaying, Converter={StaticResource BoolToVis}}">
+                    <Image Source="pack://application:,,,/Resources/pause.png"/>
+                </Button>
+                <Button Style="{StaticResource ControlButton}" Command="{StaticResource Resume}" Margin="40,0,0,0" 
+                        Visibility="{Binding Path=Driver.IsPaused, Converter={StaticResource BoolToVis}}">
+                    <Image Source="pack://application:,,,/Resources/play.png"/>
+                </Button>
+                <Button Style="{StaticResource ControlButton}" Command="{StaticResource NextImage}" Margin="40,0,0,0" >
+                    <Image Source="pack://application:,,,/Resources/rightArrow.png"/>
+                </Button>
+                <Canvas Margin="80,0,0,0">
+                    <Button Name="EnterFullScreen" Style="{StaticResource ControlButton}" 
+                            Command="{StaticResource ToggleFullScreen}"
+                            Visibility="{Binding Path=IsNormal, Converter={StaticResource BoolToVis}}">
+                        <Image Source="pack://application:,,,/Resources/enterFullScreen.png"/>
+                    </Button>
+                    <Button Name="ExitFullScreen" Style="{StaticResource ControlButton}" 
+                            Command="{StaticResource ToggleFullScreen}"
+                            Visibility="{Binding Path=IsMaximized, Converter={StaticResource BoolToVis}}">
+                        <Image Source="pack://application:,,,/Resources/exitFullScreen.png"/>
+                    </Button>
+                </Canvas>
+            </StackPanel>
+        </Canvas>
     </Grid>
 </Window>

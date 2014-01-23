@@ -18,17 +18,23 @@ namespace WatchThis.Models
     public class SlideshowModel : INotifyPropertyChanged
 	{
 		public const string Extension = ".slideshow";
+        public event PropertyChangedEventHandler PropertyChanged;
 
 		public string Filename { set; get; }
-		public string Name { set; get; }
+		public string Name 
+        {
+            get { return _name; }
+            set { this.SetField(PropertyChanged, ref _name, value, () => Name);  }
+        }
 		public double SlideSeconds
         { 
             get { return _slideSeconds; }
-            set { SetField(ref _slideSeconds, value, () => SlideSeconds); }
+            set { this.SetField(PropertyChanged, ref _slideSeconds, value, () => SlideSeconds); }
         }
 		public double TransitionSeconds { set; get; }
 		public bool ManuallyControlled { set; get; }
 
+        private string _name;
         private double _slideSeconds;
 //		public bool ShowOnce { set; get; }
 //		public SlideOrder Order { set; get; }
@@ -163,28 +169,6 @@ namespace WatchThis.Models
 					extension.Equals(".jpeg", StringComparison.InvariantCultureIgnoreCase) ||
 					extension.Equals(".png", StringComparison.InvariantCultureIgnoreCase);
 		}
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged<T>(Expression<Func<T>> selectorExpression)
-        {
-            if (selectorExpression == null)
-                throw new ArgumentNullException("selectorExpression");
-            var body = selectorExpression.Body as MemberExpression;
-            if (body == null)
-                throw new ArgumentException("The body must be a member expression");
-
-            var handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(body.Member.Name));
-        }
-        private bool SetField<T>(ref T field, T value, Expression<Func<T>> selectorExpression)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) 
-                return false;
-            field = value;
-            OnPropertyChanged(selectorExpression);
-            return true;
-        }
 
 		const string XmlRootName = "com.rangic.Slideshow";
 

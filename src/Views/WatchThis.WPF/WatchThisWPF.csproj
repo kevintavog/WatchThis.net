@@ -59,6 +59,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -98,6 +99,8 @@
     <Compile Include="SlideshowWindow.xaml.cs">
       <DependentUpon>SlideshowWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WindowsServices.cs" />
+    <Compile Include="WpfExtensions.cs" />
     <Page Include="SlideshowListView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -181,6 +184,19 @@
       <ProductName>Windows Installer 4.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\leftArrow.png" />
+    <Resource Include="Resources\pause.png" />
+    <Resource Include="Resources\play.png" />
+    <Resource Include="Resources\rightArrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\enterFullScreen.png" />
+    <Resource Include="Resources\exitFullScreen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\close.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
