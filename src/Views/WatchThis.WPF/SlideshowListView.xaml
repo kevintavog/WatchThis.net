@@ -3,7 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Title="Watch This" Height="471.235" Width="730.572">
+        Title="Watch This" 
+        Height="471.235" Width="730.572"
+        Icon="./Resources/WatchThisIcon.png">
     <Window.Resources>
         <RoutedUICommand x:Key="SetSlideshowFolder" Text="Set the slideshow folder" />
         <RoutedUICommand x:Key="Exit" Text="Exit the application" />
