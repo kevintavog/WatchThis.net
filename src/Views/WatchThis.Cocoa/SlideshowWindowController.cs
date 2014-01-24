@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using MonoMac.AppKit;
 using MonoMac.CoreAnimation;
 using MonoMac.CoreGraphics;
@@ -22,6 +23,9 @@ namespace WatchThis
 		private Random random = new Random();
 		NSImageView		imageView;
 		private SlideshowDriver driver;
+
+		private Timer _hideControlsTimer = new Timer(2 * 1000);
+		private double _lastMouseMoveTime;
 
 		CATransition typeTransition;
 		CATransition filterTransition;
@@ -83,20 +87,44 @@ namespace WatchThis
 
 		public override void AwakeFromNib()
 		{
+			base.AwakeFromNib();
 			driver = SlideshowDriver.Create(Model, this, this);
 
 			Window.BackgroundColor = NSColor.Black;
-
 			var contentView = Window.ContentView;
+
 			contentView.WantsLayer = true;
-
 			imageView = CreateImageView();
-			contentView.AddSubview(imageView);
-
-			base.AwakeFromNib();
+			contentView.AddSubview(imageView, NSWindowOrderingMode.Below, contentView.Subviews[0]);
 
 			CreateTransitions();
 			Window.Delegate = new SlideshowWindowDelegate(this);
+			Window.AcceptsMouseMovedEvents = true;
+
+			var screenSize = Window.Screen.Frame;
+			var width = (float) (screenSize.Width * 0.75);
+			var height = (float) (screenSize.Height * 0.75);
+			var newFrame = new RectangleF 
+			{
+				Width = width,
+				Height = height,
+				X = (float) (screenSize.Left + ((screenSize.Width - width) / 2)),
+				Y = (float) (screenSize.Top + ((screenSize.Height - height) / 2))
+			};
+			Window.SetFrame(newFrame, false, false);
+
+			_hideControlsTimer.Elapsed += (s, e) =>
+			{
+				var diff = (NSDate.Now.SecondsSinceReferenceDate - _lastMouseMoveTime) * 1000;
+				if (diff > _hideControlsTimer.Interval)
+				{
+					InvokeOnUiThread( () => HideControls() );
+				}
+			};
+
+			_lastMouseMoveTime = NSDate.Now.SecondsSinceReferenceDate;
+			UpdateButtonState();
+			ShowControls();
 		}
 
 		public void WindowWillClose()
@@ -107,16 +135,57 @@ namespace WatchThis
 		partial void nextImage(MonoMac.Foundation.NSObject sender)
 		{
 			driver.Next();
+			UpdateButtonState();
 		}
 
 		partial void previousImage(MonoMac.Foundation.NSObject sender)
 		{
 			driver.Previous();
+			UpdateButtonState();
 		}
 
 		partial void pauseResume(MonoMac.Foundation.NSObject sender)
 		{
 			driver.PauseOrResume();
+			UpdateButtonState();
+		}
+
+		partial void closeSlideshow(MonoMac.Foundation.NSObject sender)
+		{
+			logger.Info("closeSlideshow");
+			Close();
+		}
+
+		partial void toggleFullScreen(MonoMac.Foundation.NSObject sender)
+		{
+			logger.Info("toggleFullScreen");
+			Window.ToggleFullScreen(sender);
+		}
+
+		private void UpdateButtonState()
+		{
+			pauseButton.Hidden = !driver.IsPlaying;
+			playButton.Hidden = !driver.IsPaused;
+
+			var isFullScreen = (Window.StyleMask & NSWindowStyle.FullScreenWindow) == NSWindowStyle.FullScreenWindow;
+
+			// These are backward - 'enter' should be enabled when NOT full screen. I've messed up mapping
+			// somewhere but can't find it...
+			enterFullScreenButton.Hidden = isFullScreen;
+			exitFullScreenButton.Hidden = !isFullScreen;
+		}
+
+		private void ShowControls()
+		{
+			controlsView.Hidden = false;
+			_hideControlsTimer.Stop();
+			_hideControlsTimer.Start();
+		}
+
+		private void HideControls()
+		{
+			controlsView.Hidden = true;
+			_hideControlsTimer.Stop();
 		}
 
 		public void Error(string message)
@@ -128,12 +197,14 @@ namespace WatchThis
 		{
 			logger.Info("Images available: {0}", driver.Model.ImageList.Count);
 			driver.Play();
+			UpdateButtonState();
 		}
 
 		public void ImagesLoaded()
 		{
 			logger.Info("Images fully loaded: {0}", driver.Model.ImageList.Count);
 			driver.Play();
+			UpdateButtonState();
 		}
 
 		public void DisplayImage(ImageInformation imageInfo)
@@ -148,13 +219,36 @@ namespace WatchThis
 			// To work around possible problems in Mono's NSImage dispose: https://bugzilla.xamarin.com/show_bug.cgi?id=15081
 			System.GC.Collect();
 
-			var image = new NSImage(imageInfo.FullPath);
-			var imageRep = image.BestRepresentationForDevice(null);
-			SizeF imageSize = new SizeF(imageRep.PixelsWide, imageRep.PixelsHigh);
-			image.Size = imageSize;
-			imageView.Image = image;
-			var filterName = ApplyFilter(fromLeft);
-			logger.Info("image {0}; {1}", imageInfo.FullPath, filterName);
+			NSData imageData = null;
+			Task.Factory.StartNew(() =>
+			{
+				imageData = NSData.FromFile(imageInfo.FullPath);
+			})
+			.ContinueWith( (t) => 
+			{
+				InvokeOnUiThread(() =>
+				{
+					var image = new NSImage(imageData);
+					var imageRep = image.BestRepresentationForDevice(null);
+					SizeF imageSize = new SizeF(imageRep.PixelsWide, imageRep.PixelsHigh);
+					image.Size = imageSize;
+					imageView.Image = image;
+					var filterName = ApplyFilter(fromLeft);
+					logger.Info("image {0}; {1}", imageInfo.FullPath, filterName);
+				});
+				return t;
+			});
+		}
+
+		public override void MouseMoved(NSEvent evt)
+		{
+			base.MouseMoved(evt);
+			_lastMouseMoveTime = NSDate.Now.SecondsSinceReferenceDate;
+
+			if (controlsView.Hidden)
+			{
+				ShowControls();
+			}
 		}
 
 		private string ApplyFilter(bool fromLeft)
@@ -194,6 +288,16 @@ namespace WatchThis
 		public void InvokeOnUiThread(Action action)
 		{
 			BeginInvokeOnMainThread(delegate { action(); } );
+		}
+
+		internal void WindowDidEnterFullScreen()
+		{
+			UpdateButtonState();
+		}
+
+		internal void WindowDidExitFullScreen()
+		{
+			UpdateButtonState();
 		}
 
 		private void UpdateFilterProperties()
@@ -302,6 +406,16 @@ namespace WatchThis
 		public override void WillClose(NSNotification notification)
 		{
 			controller.WindowWillClose();
+		}
+
+		public override void DidEnterFullScreen(NSNotification notification)
+		{
+			controller.WindowDidEnterFullScreen();
+		}
+
+		public override void DidExitFullScreen(NSNotification notification)
+		{
+			controller.WindowDidExitFullScreen();
 		}
 	}
 }

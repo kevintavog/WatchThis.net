@@ -143,7 +143,7 @@ DQ
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="YsM-UH-cOW"/>
-                            <menuItem title="Create tab" id="8vc-71-ECD">
+                            <menuItem title="Edit tab" id="8vc-71-ECD">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                             <menuItem title="Saved tab" id="arU-pe-PGd">

@@ -31,7 +31,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
-                            <tabViewItem label="New" identifier="New" id="kLM-dB-UFH">
+                            <tabViewItem label="Edit" identifier="Edit" id="kLM-dB-UFH">
                                 <view key="view" id="Mjh-BP-bzB">
                                     <rect key="frame" x="10" y="33" width="596" height="324"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -113,10 +113,10 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <button id="u53-lv-Jwl">
+                                        <button focusRingType="exterior" id="u53-lv-Jwl">
                                             <rect key="frame" x="466" y="4" width="115" height="64"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                            <buttonCell key="cell" type="bevel" title="Run" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="SfN-gg-dZ1">
+                                            <buttonCell key="cell" type="bevel" title="Run" bezelStyle="regularSquare" alignment="center" state="mixed" borderStyle="border" focusRingType="exterior" allowsMixedState="YES" imageScaling="proportionallyDown" inset="2" id="SfN-gg-dZ1">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system" size="36"/>
                                                 <string key="keyEquivalent" base64-UTF8="YES">

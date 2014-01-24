@@ -176,7 +176,7 @@ namespace WatchThis
 
 		partial void runNewSlideshow(MonoMac.Foundation.NSObject sender)
 		{
-			var table = tabView.Selected.Identifier.ToString().Equals("New") ? folderTableView : tableView;
+			var table = tabView.Selected.Identifier.ToString().Equals("Edit") ? folderTableView : tableView;
 			runSlideshow(table);
 		}
 
@@ -218,7 +218,7 @@ namespace WatchThis
 		[Export("doubleAction")]
 		public void runSlideshow()
 		{
-			runSlideshow(tabView.Selected.Identifier.ToString().Equals("New") ? folderTableView : tableView);
+			runSlideshow(tabView.Selected.Identifier.ToString().Equals("Edit") ? folderTableView : tableView);
 		}
 
 		void RunSlideshowModel(SlideshowModel model)

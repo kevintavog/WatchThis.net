@@ -7,6 +7,13 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="SlideshowindowController">
             <connections>
+                <outlet property="closeButton" destination="IvJ-Kb-P7t" id="123-pv-005"/>
+                <outlet property="controlsView" destination="zDo-yA-kVL" id="123-pv-004"/>
+                <outlet property="enterFullScreenButton" destination="ats-TD-5Im" id="123-pv-006"/>
+                <outlet property="exitFullScreenButton" destination="amJ-nK-yQE" id="123-pv-007"/>
+                <outlet property="pauseButton" destination="oMV-DH-Qkh" id="123-pv-003"/>
+                <outlet property="playButton" destination="nlM-YM-yzR" id="123-pv-002"/>
+                <outlet property="previousButton" destination="Uhy-M5-iyS" id="123-pv-001"/>
                 <outlet property="window" destination="2" id="6"/>
             </connections>
         </customObject>
@@ -16,12 +23,117 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="131" y="74" width="617" height="354"/>
+            <rect key="contentRect" x="131" y="74" width="617" height="453"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" wantsLayer="YES" id="3">
-                <rect key="frame" x="0.0" y="0.0" width="617" height="354"/>
+                <rect key="frame" x="0.0" y="0.0" width="617" height="453"/>
                 <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <customView id="zDo-yA-kVL">
+                        <rect key="frame" x="55" y="41" width="506" height="69"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <button focusRingType="none" verticalHuggingPriority="750" id="Uhy-M5-iyS">
+                                <rect key="frame" x="129" y="-4" width="64" height="64"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="leftArrow" imagePosition="overlaps" alignment="center" borderStyle="border" focusRingType="none" transparent="YES" imageScaling="proportionallyDown" inset="2" id="DTJ-Pw-PyD">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent"></string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="previousImage:" target="-1" id="PUn-1v-c2s"/>
+                                </connections>
+                            </button>
+                            <button focusRingType="none" verticalHuggingPriority="750" id="oMV-DH-Qkh">
+                                <rect key="frame" x="215" y="-4" width="64" height="64"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="pause" imagePosition="overlaps" alignment="center" borderStyle="border" focusRingType="none" transparent="YES" imageScaling="proportionallyDown" inset="2" id="STs-S9-nqi">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+IA
+</string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="pauseResume:" target="-1" id="kut-tv-oHx"/>
+                                </connections>
+                            </button>
+                            <button focusRingType="none" verticalHuggingPriority="750" id="nlM-YM-yzR">
+                                <rect key="frame" x="215" y="-4" width="64" height="64"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="play" imagePosition="overlaps" alignment="center" borderStyle="border" focusRingType="none" transparent="YES" imageScaling="proportionallyDown" inset="2" id="dap-Q4-WT2">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+IA
+</string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="pauseResume:" target="-1" id="ftP-dS-pCn"/>
+                                </connections>
+                            </button>
+                            <button focusRingType="none" verticalHuggingPriority="750" id="KRq-f6-SxT">
+                                <rect key="frame" x="308" y="-4" width="64" height="64"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="rightArrow" imagePosition="overlaps" alignment="center" borderStyle="border" focusRingType="none" transparent="YES" imageScaling="proportionallyDown" inset="2" id="Sho-k3-a34">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent"></string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="nextImage:" target="-1" id="eyi-Xy-vIY"/>
+                                </connections>
+                            </button>
+                            <button focusRingType="none" verticalHuggingPriority="750" id="ats-TD-5Im">
+                                <rect key="frame" x="444" y="-4" width="64" height="64"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="enterFullScreen" imagePosition="overlaps" alignment="center" borderStyle="border" focusRingType="none" transparent="YES" imageScaling="proportionallyDown" inset="2" id="DN4-cY-kq9">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent">f</string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="toggleFullScreen:" target="-1" id="pXc-dR-cxQ"/>
+                                </connections>
+                            </button>
+                            <button focusRingType="none" verticalHuggingPriority="750" id="amJ-nK-yQE">
+                                <rect key="frame" x="444" y="-4" width="64" height="64"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="exitFullScreen" imagePosition="overlaps" alignment="center" borderStyle="border" focusRingType="none" transparent="YES" imageScaling="proportionallyDown" inset="2" id="lqW-yT-GME">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent">f</string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="toggleFullScreen:" target="-1" id="HYV-ZX-uIy"/>
+                                </connections>
+                            </button>
+                            <button focusRingType="none" verticalHuggingPriority="750" id="IvJ-Kb-P7t">
+                                <rect key="frame" x="2" y="-4" width="64" height="64"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
+                                <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="close" imagePosition="overlaps" alignment="center" borderStyle="border" focusRingType="none" transparent="YES" imageScaling="proportionallyDown" inset="2" id="s1O-R4-SXM">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent">q</string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="closeSlideshow:" target="-1" id="qiT-jk-IzR"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                    </customView>
+                </subviews>
             </view>
         </window>
     </objects>
+    <resources>
+        <image name="close" width="128" height="128"/>
+        <image name="enterFullScreen" width="128" height="128"/>
+        <image name="exitFullScreen" width="128" height="128"/>
+        <image name="leftArrow" width="128" height="128"/>
+        <image name="pause" width="128" height="128"/>
+        <image name="play" width="128" height="128"/>
+        <image name="rightArrow" width="128" height="128"/>
+    </resources>
 </document>

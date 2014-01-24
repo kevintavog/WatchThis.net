@@ -12,6 +12,30 @@ namespace WatchThis
 	[Register ("SlideshowWindowController")]
 	partial class SlideshowWindowController
 	{
+		[Outlet]
+		MonoMac.AppKit.NSView controlsView { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton previousButton { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton nextButton { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton playButton { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton pauseButton { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton closeButton { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton enterFullScreenButton { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton exitFullScreenButton { get; set; }
+
 		[Action ("nextImage:")]
 		partial void nextImage (MonoMac.Foundation.NSObject sender);
 
@@ -21,8 +45,18 @@ namespace WatchThis
 		[Action ("previousImage:")]
 		partial void previousImage (MonoMac.Foundation.NSObject sender);
 		
+		[Action ("closeSlideshow:")]
+		partial void closeSlideshow (MonoMac.Foundation.NSObject sender);
+
+		[Action ("toggleFullScreen:")]
+		partial void toggleFullScreen (MonoMac.Foundation.NSObject sender);
+
 		void ReleaseDesignerOutlets ()
 		{
+			if (previousButton != null) {
+				previousButton.Dispose ();
+				previousButton = null;
+			}
 		}
 	}
 

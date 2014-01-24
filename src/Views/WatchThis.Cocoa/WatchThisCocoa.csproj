@@ -122,8 +122,20 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <BundleResource Include="Resources\grayscale.jpg" />
+    <BundleResource Include="Resources\leftArrow.png" />
     <BundleResource Include="Resources\restrictedshine.tiff" />
     <BundleResource Include="Resources\transitionmask.jpg" />
-    <BundleResource Include="Resources\grayscale.jpg" />
+    <BundleResource Include="Resources\close.png" />
+    <BundleResource Include="Resources\enterFullScreen.png" />
+    <BundleResource Include="Resources\exitFullScreen.png" />
+    <BundleResource Include="Resources\pause.png" />
+    <BundleResource Include="Resources\play.png" />
+    <BundleResource Include="Resources\rightArrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="WatchThis.icns">
+      <DeployService-Deploy>True</DeployService-Deploy>
+    </Content>
   </ItemGroup>
 </Project>
