@@ -123,7 +123,7 @@ namespace WatchThis
 			};
 
 			_lastMouseMoveTime = NSDate.Now.SecondsSinceReferenceDate;
-			UpdateButtonState();
+			UpdateUiState();
 			ShowControls();
 		}
 
@@ -135,19 +135,16 @@ namespace WatchThis
 		partial void nextImage(MonoMac.Foundation.NSObject sender)
 		{
 			driver.Next();
-			UpdateButtonState();
 		}
 
 		partial void previousImage(MonoMac.Foundation.NSObject sender)
 		{
 			driver.Previous();
-			UpdateButtonState();
 		}
 
 		partial void pauseResume(MonoMac.Foundation.NSObject sender)
 		{
 			driver.PauseOrResume();
-			UpdateButtonState();
 		}
 
 		partial void closeSlideshow(MonoMac.Foundation.NSObject sender)
@@ -162,7 +159,7 @@ namespace WatchThis
 			Window.ToggleFullScreen(sender);
 		}
 
-		private void UpdateButtonState()
+		public void UpdateUiState()
 		{
 			pauseButton.Hidden = !driver.IsPlaying;
 			playButton.Hidden = !driver.IsPaused;
@@ -193,51 +190,31 @@ namespace WatchThis
 			logger.Error("Error from driver: '{0}'", message);
 		}
 
-		public void ImagesAvailable()
-		{
-			logger.Info("Images available: {0}", driver.Model.ImageList.Count);
-			driver.Play();
-			UpdateButtonState();
-		}
-
 		public void ImagesLoaded()
 		{
-			logger.Info("Images fully loaded: {0}", driver.Model.ImageList.Count);
 			driver.Play();
-			UpdateButtonState();
+			UpdateUiState();
 		}
 
-		public void DisplayImage(ImageInformation imageInfo)
+		public object LoadImage(ImageInformation imageInfo)
 		{
-			SetImage(imageInfo, false);
+			return NSData.FromFile(imageInfo.FullPath);
 		}
 
-		private void SetImage(ImageInformation imageInfo, bool fromLeft)
+		public string DisplayImage(object imageData)
 		{
 			NSCursor.SetHiddenUntilMouseMoves(true);
 
 			// To work around possible problems in Mono's NSImage dispose: https://bugzilla.xamarin.com/show_bug.cgi?id=15081
 			System.GC.Collect();
 
-			NSData imageData = null;
-			Task.Factory.StartNew(() =>
-			{
-				imageData = NSData.FromFile(imageInfo.FullPath);
-			})
-			.ContinueWith( (t) => 
-			{
-				InvokeOnUiThread(() =>
-				{
-					var image = new NSImage(imageData);
-					var imageRep = image.BestRepresentationForDevice(null);
-					SizeF imageSize = new SizeF(imageRep.PixelsWide, imageRep.PixelsHigh);
-					image.Size = imageSize;
-					imageView.Image = image;
-					var filterName = ApplyFilter(fromLeft);
-					logger.Info("image {0}; {1}", imageInfo.FullPath, filterName);
-				});
-				return t;
-			});
+			var image = new NSImage((NSData) imageData);
+			var imageRep = image.BestRepresentationForDevice(null);
+			SizeF imageSize = new SizeF(imageRep.PixelsWide, imageRep.PixelsHigh);
+			image.Size = imageSize;
+			imageView.Image = image;
+			var filterName = ApplyFilter(true);
+			return string.Format("filter {0}", filterName);
 		}
 
 		public override void MouseMoved(NSEvent evt)
@@ -288,16 +265,6 @@ namespace WatchThis
 		public void InvokeOnUiThread(Action action)
 		{
 			BeginInvokeOnMainThread(delegate { action(); } );
-		}
-
-		internal void WindowDidEnterFullScreen()
-		{
-			UpdateButtonState();
-		}
-
-		internal void WindowDidExitFullScreen()
-		{
-			UpdateButtonState();
 		}
 
 		private void UpdateFilterProperties()
@@ -410,12 +377,12 @@ namespace WatchThis
 
 		public override void DidEnterFullScreen(NSNotification notification)
 		{
-			controller.WindowDidEnterFullScreen();
+			controller.UpdateUiState();
 		}
 
 		public override void DidExitFullScreen(NSNotification notification)
 		{
-			controller.WindowDidExitFullScreen();
+			controller.UpdateUiState();
 		}
 	}
 }

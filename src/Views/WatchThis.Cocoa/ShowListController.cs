@@ -56,18 +56,15 @@ namespace WatchThis
 			Window.RegisterForDraggedTypes(new string[] { NSPasteboard.NSFilenamesType } );
 			Window.DropAction = (l) => DroppedPaths(l);
 
-			tableView.DoubleClick += (sender, e) => runSlideshow();
+			savedTableView.DoubleClick += (sender, e) => runSlideshow();
 			slideDurationStepper.Activated += (sender, e) => StepperDidChange();
 			UpdateControls();
 
-			SlideshowEnumerator.FindSlideshows(
-				Preferences.Instance.SlideshowwPath,
-				this,
-				this);
+			RefreshSlideshows();
 		}
 
 
-		partial void addNewFolder(MonoMac.Foundation.NSObject sender)
+		partial void addFolder(MonoMac.Foundation.NSObject sender)
 		{
 			logger.Info("Browse for folder");
 			var openPanel = new NSOpenPanel
@@ -88,22 +85,16 @@ namespace WatchThis
 			}
 		}
 
-		partial void removeNewFolder(MonoMac.Foundation.NSObject sender)
+		partial void removeFolder(MonoMac.Foundation.NSObject sender)
 		{
+			logger.Info("Remove selected folders: {0}", folderTableView.SelectedRowCount);
+
 			// TODO: Allow multi-select (and make sure the message is understandable with 20 items selected)
 			// Remove the selected folders
 			if (folderTableView.SelectedRow >= 0)
 			{
 				var item = _newSlideshow.FolderList[folderTableView.SelectedRow];
-				var alert = NSAlert.WithMessage(
-					string.Format("Are you sure you want to remove '{0}' from the list?", item.Path),
-					"No",
-					"Yes",
-					"Cancel",
-					"");
-				var response = (NSAlertType)alert.RunSheetModal(Window);
-				logger.Info("{0}", response);
-				if (response == NSAlertType.AlternateReturn)
+				if (AskQuestion("Are you sure you want to remove '{0}' from the list?", item.Path))
 				{
 					logger.Info("Remove selected folder {0}", item.Path);
 					_newSlideshow.FolderList.Remove(item);
@@ -114,6 +105,7 @@ namespace WatchThis
 			}
 		}
 
+#if false
 		partial void saveSlideshow(MonoMac.Foundation.NSObject sender)
 		{
 			logger.Info("Saving slideshow");
@@ -133,10 +125,7 @@ namespace WatchThis
 					_newSlideshow.Name = Path.GetFileNameWithoutExtension(filename);
 					_newSlideshow.Save(filename);
 
-					SlideshowEnumerator.FindSlideshows(
-						Preferences.Instance.SlideshowwPath,
-						this,
-						this);
+					RefreshSlideshows();
 				}
 				catch (Exception ex)
 				{
@@ -150,7 +139,9 @@ namespace WatchThis
 				}
 			}
 		}
+#endif
 
+#if false
 		partial void openSlideshowFolder(MonoMac.Foundation.NSObject sender)
 		{
 			logger.Info("open slideshow folder");
@@ -167,22 +158,17 @@ namespace WatchThis
 			{
 				Preferences.Instance.SlideshowwPath = openPanel.Url.Path;
 
-				SlideshowEnumerator.FindSlideshows(
-					Preferences.Instance.SlideshowwPath,
-					this,
-					this);
+				RefreshSlideshows();
+				Preferences.Instance.Save();
 			}
 		}
-
-		partial void runNewSlideshow(MonoMac.Foundation.NSObject sender)
-		{
-			var table = tabView.Selected.Identifier.ToString().Equals("Edit") ? folderTableView : tableView;
-			runSlideshow(table);
-		}
+#endif
 
 		partial void runSlideshow(MonoMac.Foundation.NSObject sender)
 		{
-			var table = sender as NSTableView;
+			logger.Info("Run slideshow");
+			var table = IsEditActive ? folderTableView : savedTableView;
+
 			if (table != null)
 			{
 				SlideshowModel model = null;
@@ -192,7 +178,7 @@ namespace WatchThis
 						model = _newSlideshow;
 						break;
 					case 1:
-						model = _slideshows[tableView.SelectedRow];
+						model = _slideshows[savedTableView.SelectedRow];
 						break;
 				}
 
@@ -201,6 +187,70 @@ namespace WatchThis
 					RunSlideshowModel(model);
 				}
 			}
+		}
+
+		partial void activateEditTab(MonoMac.Foundation.NSObject sender)
+		{
+			tabView.Select(editTabView);
+		}
+
+		partial void activateSavedTab(MonoMac.Foundation.NSObject sender)
+		{
+			tabView.Select(savedTabView);
+		}
+
+		partial void clearEdit(MonoMac.Foundation.NSObject sender)
+		{
+			logger.Info("clear edit");
+			if (IsEditActive)
+			{
+				if (_newSlideshow.FolderList.Count < 1 || AskQuestion("Are you sure you want to clear the current slideshow?"))
+				{
+					_newSlideshow = new SlideshowModel();
+					folderTableView.ReloadData();
+					UpdateControls();
+				}
+			}
+		}
+
+		partial void deleteSlideshow(MonoMac.Foundation.NSObject sender)
+		{
+			logger.Info("delete slideshow");
+			if (IsSavedActive)
+			{
+				if (savedTableView.SelectedRowCount > 0)
+				{
+					var model = _slideshows[savedTableView.SelectedRow];
+					if (AskQuestion("Are you sure you want to delete the slideshow '{0}'?", model.Name))
+					{
+						try
+						{
+							File.Delete(model.Filename);
+							RefreshSlideshows();
+						}
+						catch (Exception ex)
+						{
+							logger.Error("Exception deleting '{0}': {1}", model.Name, ex);
+							ShowMessage("Error deleting '{0}': {1}", model.Name, ex.Message);
+						}
+					}
+				}
+
+			}
+			else if (IsEditActive)
+			{
+				// If it's been saved, ask for confirmation
+			}
+		}
+
+		partial void editSlideshow(MonoMac.Foundation.NSObject sender)
+		{
+			logger.Info("edit slideshow");
+		}
+
+		partial void openSlideshow(MonoMac.Foundation.NSObject sender)
+		{
+			logger.Info("open slideshow");
 		}
 
 		void StepperDidChange()
@@ -218,7 +268,7 @@ namespace WatchThis
 		[Export("doubleAction")]
 		public void runSlideshow()
 		{
-			runSlideshow(tabView.Selected.Identifier.ToString().Equals("Edit") ? folderTableView : tableView);
+			runSlideshow(null);
 		}
 
 		void RunSlideshowModel(SlideshowModel model)
@@ -272,8 +322,34 @@ namespace WatchThis
 			logger.Info("EnumerationCompleted; found {0} slideshows", slideshowModels.Count);
 
 			_slideshows = slideshowModels;
-			tableView.ReloadData();
+			savedTableView.ReloadData();
 		}
+
+		private void RefreshSlideshows()
+		{
+			SlideshowEnumerator.FindSlideshows(
+				Preferences.Instance.SlideshowwPath,
+				this,
+				this);
+		}
+
+		private void ShowMessage(string message, params object[] args)
+		{
+			var f = string.Format(message, args);
+			NSAlert.WithMessage(f, "Close", "", "", "").RunSheetModal(Window);
+		}
+
+		private bool AskQuestion(string question, params object[] args)
+		{
+			var message = string.Format(question, args);
+			var alert = NSAlert.WithMessage(message, "No", "Yes", "Cancel", "");
+			var response = (NSAlertType)alert.RunSheetModal(Window);
+			logger.Info("responded {0} to {1}", response, message);
+			return response == NSAlertType.AlternateReturn;
+		}
+
+		private bool IsEditActive { get { return tabView.Selected.Identifier.Equals(editTabView.Identifier); } }
+		private bool IsSavedActive { get { return tabView.Selected.Identifier.Equals(savedTabView.Identifier); } }
 
 		public void InvokeOnUiThread(Action action)
 		{

@@ -103,6 +103,7 @@ namespace WatchThis.Controllers
 				State = DriverState.Paused;
                 DestroyTimer();
 			}
+			PlatformService.InvokeOnUiThread( () => Viewer.UpdateUiState());
 		}
 
 		public void Stop()
@@ -116,6 +117,7 @@ namespace WatchThis.Controllers
 		{
 			logger.Info("SlideshowDriver.Next {0}", State);
 			NextSlide();
+			PlatformService.InvokeOnUiThread( () => Viewer.UpdateUiState());
 		}
 
 		private void NextSlide()
@@ -128,32 +130,32 @@ namespace WatchThis.Controllers
 				}
 				else
 				{
-                    if (State != DriverState.Stopped)
-                    {
-                        if (State == DriverState.Paused)
-                        {
-                            SetupTimer();
-                        }
-                        ResetTimer();
+				    if (State != DriverState.Stopped)
+				    {
+				        if (State == DriverState.Paused)
+				        {
+				            SetupTimer();
+				        }
+				        ResetTimer();
 
-                        if (_recentIndex.HasValue)
-                        {
-                            ++_recentIndex;
-                            if (_recentIndex < _recent.Count)
-                            {
-                                DisplayRequest(_recent[_recentIndex.Value]);
-                            }
-                            else
-                            {
-                                _recentIndex = null;
-                            }
-                        }
+				        if (_recentIndex.HasValue)
+				        {
+				            ++_recentIndex;
+				            if (_recentIndex < _recent.Count)
+				            {
+								ShowImage(_recent[_recentIndex.Value]);
+				            }
+				            else
+				            {
+				                _recentIndex = null;
+				            }
+				        }
 
-                        if (!_recentIndex.HasValue)
-                        {
-                            DisplayRequest(NextRandom());
-                        }
-                    }
+				        if (!_recentIndex.HasValue)
+				        {
+							ShowImage(NextRandom());
+				        }
+				    }
 				}
 			});
 		}
@@ -178,7 +180,8 @@ namespace WatchThis.Controllers
 
             ResetTimer();
 			_recentIndex = index;
-			DisplayRequest(_recent[_recentIndex.Value]);
+			ShowImage(_recent[_recentIndex.Value]);
+			PlatformService.InvokeOnUiThread( () => Viewer.UpdateUiState());
 		}
 
 		private ImageInformation NextRandom()
@@ -194,6 +197,45 @@ namespace WatchThis.Controllers
 			}
 
 			return item;
+		}
+
+		private void ShowImage(ImageInformation imageInfo)
+		{
+			object image = null;
+			Task.Factory.StartNew(() =>
+				{
+					image = Viewer.LoadImage(imageInfo);
+				})
+				.ContinueWith( t => 
+					{
+						LogFailedTask(t, "Loading image '{0}'", imageInfo.FullPath);
+						if (!t.IsFaulted && !t.IsCanceled)
+						{
+							PlatformService.InvokeOnUiThread(() =>
+								{
+									var message = Viewer.DisplayImage(image);
+									logger.Info("image {0}; {1}", imageInfo.FullPath, message);
+								});
+						}
+
+						return t;
+					})
+				.ContinueWith( t =>
+					{
+						LogFailedTask(t, "Displaying image '{0}'", imageInfo.FullPath);
+					});
+		}
+
+		private void LogFailedTask(Task t, string baseMessage, params object[] args)
+		{
+			if (t.IsCanceled)
+			{
+				logger.Warn("Canceled task {0}", string.Format(baseMessage, args));
+			}
+			if (t.IsFaulted)
+			{
+				logger.Error("Faulted task {0}; {1}", string.Format(baseMessage, args), t.Exception);
+			}
 		}
 
         private void ResetTimer()
@@ -226,12 +268,6 @@ namespace WatchThis.Controllers
             }
         }
 
-        // Ask the view to display an image
-		private void DisplayRequest(ImageInformation info)
-		{
-			PlatformService.InvokeOnUiThread( delegate { Viewer.DisplayImage(info); } );
-		}
-
 		private void BeginEnumerate()
 		{
 			State = DriverState.Enumerating;
@@ -239,19 +275,23 @@ namespace WatchThis.Controllers
 				{
 					Model.Enumerate( () => 
 						{
-							PlatformService.InvokeOnUiThread( delegate { Viewer.ImagesAvailable(); } );
+							logger.Info("Images available: {0}", Model.ImageList.Count);
+							PlatformService.InvokeOnUiThread( delegate { Viewer.UpdateUiState(); } );
+							Play();
 						});
 				})
-				.ContinueWith( t =>
+			.ContinueWith( t =>
 				{
-					if (t.IsCompleted)
+					if (!t.IsFaulted && !t.IsCanceled)
 					{
 						if (State == DriverState.Playing || State == DriverState.Paused)
 						{
+							logger.Info("Images fully loaded: {0}", Model.ImageList.Count);
 							PlatformService.InvokeOnUiThread( delegate 
 								{
-									Viewer.ImagesLoaded(); 
+									Viewer.UpdateUiState(); 
 								} );
+							Play();
 						}
 						else
 						{

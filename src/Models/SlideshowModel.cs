@@ -17,7 +17,7 @@ namespace WatchThis.Models
 {
     public class SlideshowModel : INotifyPropertyChanged
 	{
-		public const string Extension = ".slideshow";
+		public const string Extension = ".watchthisslideshow";
         public event PropertyChangedEventHandler PropertyChanged;
 
 		public string Filename { set; get; }

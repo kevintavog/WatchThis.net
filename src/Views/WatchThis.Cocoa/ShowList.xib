@@ -6,38 +6,41 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="ShowListController">
             <connections>
+                <outlet property="editTabView" destination="kLM-dB-UFH" id="WpW-nT-huu"/>
                 <outlet property="folderTableView" destination="lOj-Ta-tOX" id="3bx-E1-xf1"/>
+                <outlet property="savedTabView" destination="5CQ-Xv-lAc" id="g4N-B5-J85"/>
+                <outlet property="savedTableView" destination="23K-PM-V6e" id="4Kk-lT-KN7"/>
                 <outlet property="slideDuration" destination="UX9-gD-odW" id="C7O-Se-jBm"/>
                 <outlet property="slideDurationStepper" destination="4Y4-M3-UNT" id="CXv-eT-KgU"/>
                 <outlet property="tabView" destination="aTB-w6-dl0" id="3AM-qC-Yts"/>
-                <outlet property="tableView" destination="23K-PM-V6e" id="9mo-pT-2oT"/>
                 <outlet property="window" destination="2" id="6"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application"/>
-        <window title="Watch This" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="2" customClass="ShowList">
+        <window title="Watch This" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" showsToolbarButton="NO" animationBehavior="default" id="2" customClass="ShowList">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="131" y="74" width="606" height="354"/>
+            <rect key="contentRect" x="131" y="74" width="606" height="360"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
+            <value key="minSize" type="size" width="600" height="360"/>
             <view key="contentView" id="3">
-                <rect key="frame" x="0.0" y="0.0" width="606" height="354"/>
+                <rect key="frame" x="0.0" y="0.0" width="606" height="360"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <tabView id="aTB-w6-dl0">
-                        <rect key="frame" x="-2" y="-10" width="616" height="370"/>
+                        <rect key="frame" x="-2" y="-10" width="616" height="376"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="Edit" identifier="Edit" id="kLM-dB-UFH">
                                 <view key="view" id="Mjh-BP-bzB">
-                                    <rect key="frame" x="10" y="33" width="596" height="324"/>
+                                    <rect key="frame" x="10" y="33" width="596" height="330"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" id="agH-Gm-DVu">
-                                            <rect key="frame" x="15" y="267" width="566" height="47"/>
+                                            <rect key="frame" x="15" y="298" width="566" height="25"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="mini" sendsActionOnEndEditing="YES" title="Drop one or more folders to include them in a slideshow." id="uKx-nu-U3G">
                                                 <font key="font" metaFont="system" size="16"/>
@@ -46,14 +49,14 @@
                                             </textFieldCell>
                                         </textField>
                                         <scrollView autohidesScrollers="YES" horizontalLineScroll="30" horizontalPageScroll="10" verticalLineScroll="30" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="uvd-hh-GDa">
-                                            <rect key="frame" x="17" y="77" width="562" height="182"/>
+                                            <rect key="frame" x="17" y="77" width="562" height="210"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="qoh-kB-ur4">
-                                                <rect key="frame" x="1" y="1" width="560" height="180"/>
+                                                <rect key="frame" x="1" y="1" width="560" height="208"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowHeight="28" id="lOj-Ta-tOX">
-                                                        <rect key="frame" x="0.0" y="0.0" width="560" height="180"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="560" height="208"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -113,10 +116,10 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <button focusRingType="exterior" id="u53-lv-Jwl">
-                                            <rect key="frame" x="466" y="4" width="115" height="64"/>
+                                        <button focusRingType="exterior" verticalHuggingPriority="750" id="u53-lv-Jwl">
+                                            <rect key="frame" x="476" y="4" width="103" height="62"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                            <buttonCell key="cell" type="bevel" title="Run" bezelStyle="regularSquare" alignment="center" state="mixed" borderStyle="border" focusRingType="exterior" allowsMixedState="YES" imageScaling="proportionallyDown" inset="2" id="SfN-gg-dZ1">
+                                            <buttonCell key="cell" type="squareTextured" title="Run" bezelStyle="texturedSquare" alignment="center" state="mixed" borderStyle="border" focusRingType="exterior" allowsMixedState="YES" imageScaling="proportionallyDown" inset="2" id="SfN-gg-dZ1">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system" size="36"/>
                                                 <string key="keyEquivalent" base64-UTF8="YES">
@@ -124,7 +127,7 @@ DQ
 </string>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="runNewSlideshow:" target="-2" id="gSJ-Jq-1Y9"/>
+                                                <action selector="runSlideshow:" target="-2" id="7q3-fd-qjc"/>
                                             </connections>
                                         </button>
                                         <button verticalHuggingPriority="750" id="Q8l-cj-1xu">
@@ -135,7 +138,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="addNewFolder:" target="-2" id="HAU-I0-25m"/>
+                                                <action selector="addFolder:" target="-2" id="fh8-EW-UWX"/>
                                             </connections>
                                         </button>
                                         <button verticalHuggingPriority="750" id="yWD-PV-taF">
@@ -146,7 +149,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="removeNewFolder:" target="-2" id="Cd3-43-zuq"/>
+                                                <action selector="removeFolder:" target="-2" id="jhI-5A-KFL"/>
                                             </connections>
                                         </button>
                                     </subviews>
@@ -154,24 +157,24 @@ DQ
                             </tabViewItem>
                             <tabViewItem label="Saved" identifier="Saved" id="5CQ-Xv-lAc">
                                 <view key="view" id="vWQ-qU-04Y">
-                                    <rect key="frame" x="10" y="33" width="596" height="324"/>
+                                    <rect key="frame" x="10" y="33" width="596" height="330"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <scrollView autohidesScrollers="YES" horizontalLineScroll="30" horizontalPageScroll="10" verticalLineScroll="30" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="dZf-4u-hlW">
-                                            <rect key="frame" x="20" y="17" width="559" height="304"/>
+                                            <rect key="frame" x="17" y="75" width="562" height="248"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="WN8-tE-1LR">
-                                                <rect key="frame" x="1" y="1" width="557" height="302"/>
+                                                <rect key="frame" x="1" y="1" width="560" height="246"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" tag="1" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" rowHeight="28" id="23K-PM-V6e">
-                                                        <rect key="frame" x="0.0" y="0.0" width="557" height="302"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="560" height="246"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                                         <tableColumns>
-                                                            <tableColumn editable="NO" width="554" minWidth="40" maxWidth="5000" id="bhX-qD-rtD">
+                                                            <tableColumn editable="NO" width="557" minWidth="40" maxWidth="5000" id="bhX-qD-rtD">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -202,6 +205,31 @@ DQ
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                         </scrollView>
+                                        <button verticalHuggingPriority="750" id="cbn-FY-41y">
+                                            <rect key="frame" x="11" y="44" width="64" height="25"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="roundTextured" title="Edit" bezelStyle="texturedRounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="73I-yv-eC8">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="editSlideshow:" target="-2" id="EGl-IF-2Sl"/>
+                                            </connections>
+                                        </button>
+                                        <button focusRingType="exterior" verticalHuggingPriority="750" id="kJ5-u7-KFZ">
+                                            <rect key="frame" x="476" y="4" width="103" height="62"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="squareTextured" title="Run" bezelStyle="texturedSquare" alignment="center" state="mixed" borderStyle="border" focusRingType="exterior" allowsMixedState="YES" imageScaling="proportionallyDown" inset="2" id="ik5-9R-VFx">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system" size="36"/>
+                                                <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="runSlideshow:" target="-2" id="24f-27-Shc"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                 </view>
                             </tabViewItem>

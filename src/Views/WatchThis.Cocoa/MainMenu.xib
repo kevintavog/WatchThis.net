@@ -63,42 +63,47 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="File" id="83">
-                    <menu key="submenu" title="File" id="81">
+                <menuItem title="File" id="ZiI-5W-UFY">
+                    <menu key="submenu" title="File" id="BLF-PF-dAJ">
                         <items>
-                            <menuItem title="Open…" keyEquivalent="o" id="72">
+                            <menuItem title="Clear" keyEquivalent="n" id="qeP-3m-pJP">
                                 <connections>
-                                    <action selector="openDocument:" target="-1" id="374"/>
+                                    <action selector="clearEdit:" target="-1" id="rRQ-Xt-L0D"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Open Recent" id="124">
-                                <menu key="submenu" title="Open Recent" systemMenu="recentDocuments" id="125">
+                            <menuItem title="Open…" keyEquivalent="o" id="aZP-cE-1bF">
+                                <connections>
+                                    <action selector="openSlideshow:" target="-1" id="hLZ-Ao-0ES"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Open Recent" id="ef5-q9-2BT">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Open Recent" systemMenu="recentDocuments" id="BDU-Dj-8Oa">
                                     <items>
-                                        <menuItem title="Clear Menu" id="126">
+                                        <menuItem title="Clear Menu" id="3X4-fd-s7h">
                                             <connections>
-                                                <action selector="clearRecentDocuments:" target="-1" id="127"/>
+                                                <action selector="clearRecentDocuments:" target="-1" id="GrU-rk-Q6S"/>
                                             </connections>
                                         </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>
-                            <menuItem title="Open Slideshow Folder" keyEquivalent="f" id="mzH-Nw-Q0c">
+                            <menuItem isSeparatorItem="YES" id="KT2-mM-iHy"/>
+                            <menuItem title="Edit" keyEquivalent="e" id="Ca6-6n-u3Y">
                                 <connections>
-                                    <action selector="openSlideshowFolder:" target="-1" id="pfo-tp-ekO"/>
+                                    <action selector="editSlideshow:" target="-1" id="zp0-mP-FhX"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="79">
-                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
-                            </menuItem>
-                            <menuItem title="Close" keyEquivalent="w" id="73">
+                            <menuItem isSeparatorItem="YES" id="vrA-Hf-oPP"/>
+                            <menuItem title="Delete" keyEquivalent="d" id="SK2-9P-7Zn">
                                 <connections>
-                                    <action selector="performClose:" target="-1" id="193"/>
+                                    <action selector="deleteSlideshow:" target="-1" id="7an-hg-Idw"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="Dn7-ne-SmG"/>
-                            <menuItem title="Save As..." keyEquivalent="s" id="mTL-Hv-KhG">
+                            <menuItem isSeparatorItem="YES" id="ZqH-6e-u4m"/>
+                            <menuItem title="Close" keyEquivalent="w" id="PJC-SA-Usu">
                                 <connections>
-                                    <action selector="saveSlideshow:" target="-1" id="k1t-j2-qKV"/>
+                                    <action selector="performClose:" target="-1" id="Ce8-va-PUv"/>
                                 </connections>
                             </menuItem>
                         </items>
@@ -142,13 +147,6 @@ DQ
                                     <action selector="toggleFullScreen:" target="-1" id="wZM-Sv-7y6"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="YsM-UH-cOW"/>
-                            <menuItem title="Edit tab" id="8vc-71-ECD">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                            </menuItem>
-                            <menuItem title="Saved tab" id="arU-pe-PGd">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
@@ -165,13 +163,26 @@ DQ
                                     <action selector="performZoom:" target="-1" id="240"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="92">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
                             <menuItem title="Show Next Tab" id="TYL-f1-SS4">
                                 <string key="keyEquivalent" base64-UTF8="YES">
 CQ
 </string>
                                 <modifierMask key="keyEquivalentModifierMask" control="YES"/>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="92">
+                            <menuItem title="Edit tab" keyEquivalent="1" id="8vc-71-ECD">
+                                <connections>
+                                    <action selector="activateEditTab:" target="-1" id="eLM-nd-yRw"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Saved tab" keyEquivalent="2" id="arU-pe-PGd">
+                                <connections>
+                                    <action selector="activateSavedTab:" target="-1" id="dBn-rP-0Yn"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="UnO-Ky-UWF">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
                             <menuItem title="Bring All to Front" id="5">

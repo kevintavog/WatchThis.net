@@ -1,0 +1,75 @@
+Watch This
+
+Misc
+ - use '.watchthisslideshow' extension
+ - Make files double-clickable (associate with WatchThis.app/exe)
+ - Connect Ctrl+Tab & Shift+Ctrl+Tab
+ - Slideshows directory: default to <Pictures>/WatchThisSlideshows
+ - Hide / Disable List window while slideshow active
+
+Global settings
+ - Consider separating settings into areas to enable better recovery on read errors
+ - Slideshows directory: <Pictures>/WatchThisSlideshows
+ - Default background color: black
+ - Default slide duration: 10 seconds
+ - ListView font & size
+ - Length of time controls are visible: 2 seconds
+
+Edit tab
+ - Rename WPF from Create => Edit
+ - Auto save edit tab to '{id}'; rename if description is provided
+ - Properties button => Properties dialog
+ - Remove 'Save' menu item; replace with auto-save (which lacks undo/cancel...)
+ - Replace Name with Description
+
+Saved tab
+ - Add Edit button (load to Edit tab)
+ - Add Run button
+ - Add Delete button, with confirmation
+
+Properties dialog
+ - Per slideshow
+ - Background color
+ - Manual versus automatic
+ - Fullscreen or not
+
+
+Slideshow
+ - + / - to increase / decrease slide duration
+ - Check keyboard shortcuts (q, f, left arrow, right arrow, space, +, -)
+ - Info display: timestamp (various forms), directory name (various forms), file name, ...
+
+WPF
+ - Transitions
+
+
+Features
+  Multiscreen
+  	- One slideshow, one or all screens
+  	- Keyboard controls 'active' screen/window
+  	- Visible controls per window; they control the window they're on
+
+  Multiple slideshows
+  	- Run more than one slideshow at a time
+  	- Scenario: Two different slideshows, one for each screen
+  	- Same keyboard/controls interaction as Multiscreen
+
+  Info banner
+	 - This text banner shows one or more of:
+	 	- timestamp: YYYY/MM/DD, ...
+	 	- directory name: parent, +grand-parent, +great-grand-parent, ...
+	 	- filename
+	 	- EXIF/XXX tags
+	 - Font & size are configurable
+	 - Opacity/transparency
+	 - Global settings
+	 	- Default fields
+	 	- Default font/size
+	 - Slideshow settings
+	 	- Show or hide
+	 	- fields
+	 	- font/size
+	 - Slideshow
+	 	- Show or hide
+	 	- Keyboard shortcut: i
+

@@ -15,12 +15,27 @@
 	<key>CFBundleDisplayName</key>
 	<string>Watch This</string>
 	<key>CFBundleIdentifier</key>
-	<string>watchthis</string>
+	<string>com.rangic.watchthis</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1</string>
+	<string>1.0.0</string>
 	<key>CFBundleIconFile</key>
 	<string>WatchThis</string>
 	<key>CFBundleVersion</key>
 	<string>2</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>watchthisslideshow</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>WatchThisSlideshow</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleTypeIconFile</key>
+			<string>WatchThis</string>
+		</dict>
+	</array>
 </dict>
 </plist>

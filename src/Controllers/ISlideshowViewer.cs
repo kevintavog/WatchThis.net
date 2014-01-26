@@ -5,12 +5,20 @@ namespace WatchThis.Controllers
 {
 	public interface ISlideshowViewer
 	{
-		void DisplayImage(ImageInformation imageInfo);
+		/// <summary>
+		/// Called from a worker thread so the UI thread is not blocked
+		/// </summary>
+		object LoadImage(ImageInformation imageInfo);
+
+		/// <summary>
+		/// Called from the UI thread to display the previously loaded image.
+		/// Returns a string to be emitted to the log with the filename of the loaded image.
+		/// </summary>
+		string DisplayImage(object image);
 
 		void Error(string message);
 
-		void ImagesAvailable();
-		void ImagesLoaded();
+		void UpdateUiState();
 	}
 }
 

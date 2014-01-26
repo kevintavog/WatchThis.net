@@ -13,7 +13,16 @@ namespace WatchThis
 	partial class ShowListController
 	{
 		[Outlet]
+		MonoMac.AppKit.NSTabViewItem editTabView { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTableView folderTableView { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTableView savedTableView { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTabViewItem savedTabView { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField slideDuration { get; set; }
@@ -22,34 +31,55 @@ namespace WatchThis
 		MonoMac.AppKit.NSStepper slideDurationStepper { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTableView tableView { get; set; }
-
-		[Outlet]
 		MonoMac.AppKit.NSTabView tabView { get; set; }
 
-		[Action ("addNewFolder:")]
-		partial void addNewFolder (MonoMac.Foundation.NSObject sender);
+		[Action ("activateEditTab:")]
+		partial void activateEditTab (MonoMac.Foundation.NSObject sender);
 
-		[Action ("openSlideshowFolder:")]
-		partial void openSlideshowFolder (MonoMac.Foundation.NSObject sender);
+		[Action ("activateSavedTab:")]
+		partial void activateSavedTab (MonoMac.Foundation.NSObject sender);
 
-		[Action ("removeNewFolder:")]
-		partial void removeNewFolder (MonoMac.Foundation.NSObject sender);
+		[Action ("addFolder:")]
+		partial void addFolder (MonoMac.Foundation.NSObject sender);
 
-		[Action ("runNewSlideshow:")]
-		partial void runNewSlideshow (MonoMac.Foundation.NSObject sender);
+		[Action ("clearEdit:")]
+		partial void clearEdit (MonoMac.Foundation.NSObject sender);
+
+		[Action ("deleteSlideshow:")]
+		partial void deleteSlideshow (MonoMac.Foundation.NSObject sender);
+
+		[Action ("editSlideshow:")]
+		partial void editSlideshow (MonoMac.Foundation.NSObject sender);
+
+		[Action ("openSlideshow:")]
+		partial void openSlideshow (MonoMac.Foundation.NSObject sender);
+
+		[Action ("removeFolder:")]
+		partial void removeFolder (MonoMac.Foundation.NSObject sender);
 
 		[Action ("runSlideshow:")]
 		partial void runSlideshow (MonoMac.Foundation.NSObject sender);
-
-		[Action ("saveSlideshow:")]
-		partial void saveSlideshow (MonoMac.Foundation.NSObject sender);
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (savedTabView != null) {
+				savedTabView.Dispose ();
+				savedTabView = null;
+			}
+
+			if (editTabView != null) {
+				editTabView.Dispose ();
+				editTabView = null;
+			}
+
 			if (folderTableView != null) {
 				folderTableView.Dispose ();
 				folderTableView = null;
+			}
+
+			if (savedTableView != null) {
+				savedTableView.Dispose ();
+				savedTableView = null;
 			}
 
 			if (slideDuration != null) {
@@ -60,11 +90,6 @@ namespace WatchThis
 			if (slideDurationStepper != null) {
 				slideDurationStepper.Dispose ();
 				slideDurationStepper = null;
-			}
-
-			if (tableView != null) {
-				tableView.Dispose ();
-				tableView = null;
 			}
 
 			if (tabView != null) {

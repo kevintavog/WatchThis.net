@@ -18,7 +18,7 @@ namespace WatchThis.Models
 		{
 			SlideshowwPath = Path.Combine(
 				Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
-				"slideshows");
+				"WatchThis Slideshows");
 		}
 
         public void Save()
