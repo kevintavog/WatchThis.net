@@ -47,6 +47,21 @@ namespace WatchThis.Wpf
             Controller.AddEditFolder();
         }
 
+        private void OpenSlideshow(object sender, ExecutedRoutedEventArgs args)
+        {
+            logger.Info("TODO: OpenSlideshow");
+        }
+
+        private void EditSlideshow(object sender, ExecutedRoutedEventArgs args)
+        {
+            logger.Info("TODO: EditSlideshow");
+        }
+
+        private void DeleteSlideshow(object sender, ExecutedRoutedEventArgs args)
+        {
+            Controller.DeleteSlideshow();
+        }
+
         private void ClearEdit(object sender, ExecutedRoutedEventArgs args)
         {
             Controller.ClearEdit();
@@ -61,6 +76,16 @@ namespace WatchThis.Wpf
             }
 
             Controller.RemoveEditFolders(folderList);
+        }
+
+        private void ActivateEditTab(object sender, ExecutedRoutedEventArgs args)
+        {
+            TabControl.SelectedItem = EditTabItem;
+        }
+
+        private void ActivateSavedTab(object sender, ExecutedRoutedEventArgs args)
+        {
+            TabControl.SelectedItem = SavedTabItem;
         }
 
         private void Exit(object sender, ExecutedRoutedEventArgs args)

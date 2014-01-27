@@ -8,10 +8,15 @@
         Icon="./Resources/WatchThisIcon.png">
     <Window.Resources>
         <RoutedUICommand x:Key="ClearEdit" Text="Clear the edit slideshow" />
+        <RoutedUICommand x:Key="OpenSlideshow" Text="Open a slideshow file directly" />
+        <RoutedUICommand x:Key="EditSlideshow" Text="Edit the currently selected slideshow" />
+        <RoutedUICommand x:Key="DeleteSlideshow" Text="Delete the currently selected slideshow" />
         <RoutedUICommand x:Key="Exit" Text="Exit the application" />
         <RoutedUICommand x:Key="Run" Text="Run the slideshow" />
         <RoutedUICommand x:Key="AddFolder" Text="Add folder" />
         <RoutedUICommand x:Key="RemoveFolder" Text="Remove selected folders" />
+        <RoutedUICommand x:Key="ActivateEditTab" Text="Activate the edit tab" />
+        <RoutedUICommand x:Key="ActivateSavedTab" Text="Activate the saved tab" />
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource ClearEdit}" Executed="ClearEdit" />
@@ -19,25 +24,34 @@
         <CommandBinding Command="{StaticResource Run}" Executed="RunSlideshow" />
         <CommandBinding Command="{StaticResource AddFolder}" Executed="AddFolder" />
         <CommandBinding Command="{StaticResource RemoveFolder}" Executed="RemoveSelectedFolders" />
+        <CommandBinding Command="{StaticResource ActivateEditTab}" Executed="ActivateEditTab" />
+        <CommandBinding Command="{StaticResource ActivateSavedTab}" Executed="ActivateSavedTab" />
     </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Command="{StaticResource ClearEdit}" Key="N" Modifiers="Control" />
+        <KeyBinding Command="{StaticResource OpenSlideshow}" Key="O" Modifiers="Control" />
+        <KeyBinding Command="{StaticResource EditSlideshow}" Key="E" Modifiers="Control" />
         <KeyBinding Command="{StaticResource Exit}" Key="F4" Modifiers="Alt" />
         <KeyBinding Command="{StaticResource Run}" Key="R" Modifiers="Control" />
+        <KeyBinding Command="{StaticResource ActivateEditTab}" Key="E" Modifiers="Alt" />
+        <KeyBinding Command="{StaticResource ActivateSavedTab}" Key="S" Modifiers="Alt" />
     </Window.InputBindings>
     <DockPanel>
         <Menu Height="20" Width="Auto" DockPanel.Dock="Top"  >
             <MenuItem Header="_File">
-                <MenuItem Header="Clear" Command="{StaticResource ClearEdit}" />
+                <MenuItem Header="_Clear" Command="{StaticResource ClearEdit}" />
+                <MenuItem Header="_Open" Command="{StaticResource OpenSlideshow}" />
                 <Separator/>
-                <MenuItem Command="ApplicationCommands.SaveAs" />
+                <MenuItem Header="_Edit" Command="{StaticResource EditSlideshow}" />
+                <Separator/>
+                <MenuItem Header="_Delete" Command="{StaticResource DeleteSlideshow}" />
                 <Separator/>
                 <MenuItem Header="E_xit" Command="{StaticResource Exit}" />
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Run" Command="{StaticResource Run}" />
                 <Separator/>
-                <MenuItem Header="_Create tab" />
+                <MenuItem Header="_Edit tab" />
                 <MenuItem Header="_Saved tab" />
             </MenuItem>
         </Menu>
