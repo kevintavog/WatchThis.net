@@ -1,10 +1,8 @@
 Watch This
 
 Misc
- - use '.watchthisslideshow' extension
- - Make files double-clickable (associate with WatchThis.app/exe)
+ - WPF: Make files double-clickable (associate with WatchThis.app/exe)
  - Connect Ctrl+Tab & Shift+Ctrl+Tab
- - Slideshows directory: default to <Pictures>/WatchThisSlideshows
  - Hide / Disable List window while slideshow active
 
 Global settings
@@ -16,16 +14,14 @@ Global settings
  - Length of time controls are visible: 2 seconds
 
 Edit tab
- - Rename WPF from Create => Edit
  - Auto save edit tab to '{id}'; rename if description is provided
  - Properties button => Properties dialog
- - Remove 'Save' menu item; replace with auto-save (which lacks undo/cancel...)
  - Replace Name with Description
 
 Saved tab
  - Add Edit button (load to Edit tab)
- - Add Run button
- - Add Delete button, with confirmation
+ - WPF: Add Run button
+ - WPF: Add Delete button, with confirmation
 
 Properties dialog
  - Per slideshow
