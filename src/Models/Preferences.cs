@@ -10,13 +10,13 @@ namespace WatchThis.Models
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		static public Preferences Instance { get; private set; }
-		public string SlideshowwPath { get; set; }
+		public string SlideshowwFolder { get; set; }
 
         private string Filename { get; set; }
 
 		private Preferences()
 		{
-			SlideshowwPath = Path.Combine(
+			SlideshowwFolder = Path.Combine(
 				Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
 				"WatchThis Slideshows");
 		}
@@ -35,7 +35,7 @@ namespace WatchThis.Models
 				try
 				{
 					var xml = XDocument.Parse(File.ReadAllText(filename));
-					Instance.SlideshowwPath = xml.GetValue("SlideshowPath", Instance.SlideshowwPath);
+					Instance.SlideshowwFolder = xml.GetValue("SlideshowFolder", Instance.SlideshowwFolder);
 				}
 				catch (Exception e)
 				{
@@ -60,7 +60,7 @@ namespace WatchThis.Models
 		{
 			var xml = new XDocument(
 				new XElement("com.rangic.WatchThis.Preferences",
-					new XElement("SlideshowPath", Instance.SlideshowwPath)));
+					new XElement("SlideshowFolder", Instance.SlideshowwFolder)));
 
 			File.WriteAllText(filename, xml.ToString());
 		}

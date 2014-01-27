@@ -238,24 +238,36 @@ namespace WatchThis.Controllers
 			}
 		}
 
+		private double GetTimerValue()
+		{
+			var time = (Model.SlideSeconds + Model.TransitionSeconds) * 1000;
+			if (time < 100)
+			{
+				time = 100;
+			}
+
+			return time;
+		}
+
         private void ResetTimer()
         {
             _timer.Stop();
+			_timer.Interval = GetTimerValue();
             _timer.Start();
         }
 
         private void SetupTimer()
         {
+			var time = GetTimerValue();
             if (_timer == null)
             {
-                var time = (Model.SlideSeconds + Model.TransitionSeconds) * 1000;
-                if (time < 100)
-                {
-                    time = 100;
-                }
                 _timer = new Timer(time) { AutoReset = true, Enabled = true };
                 _timer.Elapsed += (s, e) => NextSlide();
             }
+			else
+			{
+				_timer.Interval = time;
+			}
         }
 
         private void DestroyTimer()

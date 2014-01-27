@@ -120,6 +120,10 @@
       <Project>{34D4CC23-AE82-46C3-9D63-07FC6F75B1ED}</Project>
       <Name>Models</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Utilities\Utilities.csproj">
+      <Project>{DD17DA77-120E-469B-9BB4-EBB73E7E0335}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\grayscale.jpg" />

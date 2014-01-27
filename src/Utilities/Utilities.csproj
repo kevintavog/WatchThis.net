@@ -46,6 +46,7 @@
     <Compile Include="XElementExtensions.cs" />
     <Compile Include="ExifReader.cs" />
     <Compile Include="FileEnumerator.cs" />
+    <Compile Include="NotifyPropertyChangedHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

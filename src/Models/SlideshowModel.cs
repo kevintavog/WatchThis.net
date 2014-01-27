@@ -47,12 +47,19 @@ namespace WatchThis.Models
 
 		public SlideshowModel()
 		{
+            FolderList = new ObservableCollection<FolderModel>();
+			ImageList = new List<ImageInformation>();
+			Reset();
+		}
+
+		public void Reset()
+		{
 //			ShowOnce = true;
 //			Order = SlideOrder.Random;
 			SlideSeconds = 10;
 			TransitionSeconds = 1;
-            FolderList = new ObservableCollection<FolderModel>();
-			ImageList = new List<ImageInformation>();
+			FolderList.Clear();
+			ImageList.Clear();
 		}
 
 		static public SlideshowModel ParseFile(string filename)

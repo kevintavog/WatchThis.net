@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using WatchThis.Models;
+using System.Collections.Generic;
 
 namespace WatchThis.Controllers
 {

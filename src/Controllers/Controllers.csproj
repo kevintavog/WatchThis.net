@@ -43,6 +43,8 @@
     <Compile Include="ISlideshowViewer.cs" />
     <Compile Include="SlideshowDriver.cs" />
     <Compile Include="SlideshowEnumerator.cs" />
+    <Compile Include="SlideshowChooserController.cs" />
+    <Compile Include="ISlideshowPickerViewer.cs" />
     <Compile Include="ISlideshowListViewer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
