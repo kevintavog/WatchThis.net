@@ -5,8 +5,8 @@ namespace WatchThis.Controllers
 	public interface ISlideshowPickerViewer
 	{
 		string ChooseFolder(string message);
-		bool AskQuestion(string question);
-		void ShowMessage(string message);
+		bool AskQuestion(string caption, string question);
+		void ShowMessage(string caption, string message);
 
 		void RunSlideshow(SlideshowModel model);
 

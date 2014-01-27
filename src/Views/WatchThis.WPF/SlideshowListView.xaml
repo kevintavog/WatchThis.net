@@ -7,29 +7,28 @@
         Height="471.235" Width="730.572"
         Icon="./Resources/WatchThisIcon.png">
     <Window.Resources>
-        <RoutedUICommand x:Key="SetSlideshowFolder" Text="Set the slideshow folder" />
+        <RoutedUICommand x:Key="ClearEdit" Text="Clear the edit slideshow" />
         <RoutedUICommand x:Key="Exit" Text="Exit the application" />
         <RoutedUICommand x:Key="Run" Text="Run the slideshow" />
         <RoutedUICommand x:Key="AddFolder" Text="Add folder" />
         <RoutedUICommand x:Key="RemoveFolder" Text="Remove selected folders" />
     </Window.Resources>
     <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource SetSlideshowFolder}" Executed="SetSlideshowFolder" />
-        <CommandBinding Command="ApplicationCommands.SaveAs" Executed="SaveAs" />
+        <CommandBinding Command="{StaticResource ClearEdit}" Executed="ClearEdit" />
         <CommandBinding Command="{StaticResource Exit}" Executed="Exit" />
         <CommandBinding Command="{StaticResource Run}" Executed="RunSlideshow" />
         <CommandBinding Command="{StaticResource AddFolder}" Executed="AddFolder" />
         <CommandBinding Command="{StaticResource RemoveFolder}" Executed="RemoveSelectedFolders" />
     </Window.CommandBindings>
     <Window.InputBindings>
-        <KeyBinding Command="{StaticResource SetSlideshowFolder}" Key="F" Modifiers="Control" />
+        <KeyBinding Command="{StaticResource ClearEdit}" Key="N" Modifiers="Control" />
         <KeyBinding Command="{StaticResource Exit}" Key="F4" Modifiers="Alt" />
         <KeyBinding Command="{StaticResource Run}" Key="R" Modifiers="Control" />
     </Window.InputBindings>
     <DockPanel>
         <Menu Height="20" Width="Auto" DockPanel.Dock="Top"  >
             <MenuItem Header="_File">
-                <MenuItem Header="Set Slideshow _Folder..." Command="{StaticResource SetSlideshowFolder}" />
+                <MenuItem Header="Clear" Command="{StaticResource ClearEdit}" />
                 <Separator/>
                 <MenuItem Command="ApplicationCommands.SaveAs" />
                 <Separator/>
@@ -44,9 +43,9 @@
         </Menu>
 
         <TabControl Name="TabControl">
-            <TabItem Name="CreatedTabItem">
+            <TabItem Name="EditTabItem">
                 <TabItem.Header>
-                    <TextBlock>Created</TextBlock>
+                    <TextBlock>Edit</TextBlock>
                 </TabItem.Header>
                 <DockPanel AllowDrop="True" DragEnter="FolderDragEnter" Drop="FolderDrop" >
                     <Label FontSize="20" Height="60" Margin="10,0,10,0" VerticalAlignment="Top" DockPanel.Dock="Top">
@@ -61,7 +60,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal" Width="Auto"  >
                             <Label Content="Slide duration:" FontSize="20" VerticalAlignment="Center" />
-                            <xctk:IntegerUpDown Value="{Binding NewSlideshow.SlideSeconds}" Maximum="10000" Minimum="1" MinWidth="90" FontSize="20" Margin="1" />
+                            <xctk:IntegerUpDown Value="{Binding Controller.EditedSlideshow.SlideSeconds}" Maximum="10000" Minimum="1" MinWidth="90" FontSize="20" Margin="1" />
                         </StackPanel>
                         <Button Margin="10" MinWidth="60" HorizontalAlignment="Right" FontSize="24" Command="{StaticResource Run}" >Run</Button>
                     </Grid>
@@ -69,7 +68,7 @@
                         <Button Margin="10" MinWidth="60" Command="{StaticResource AddFolder}" >Add</Button>
                         <Button Margin="10" MinWidth="60" Command="{StaticResource RemoveFolder}" >Remove</Button>
                     </StackPanel>
-                    <ListView Margin="10" Name="CreatedListView" FontSize="20" SelectionMode="Extended" ItemsSource="{Binding NewSlideshow.FolderList}" >
+                    <ListView Margin="10" Name="CreatedListView" FontSize="20" SelectionMode="Extended" ItemsSource="{Binding Controller.EditedSlideshow.FolderList}" >
                         <ListView.Resources>
                             <Style TargetType="GridViewColumnHeader">
                                 <Setter Property="Visibility" Value="Collapsed" />
@@ -88,7 +87,8 @@
                 <TabItem.Header>
                     <TextBlock>Saved</TextBlock>
                 </TabItem.Header>
-                <ListView Margin="10" Name="SlideshowList" FontSize="30" SelectionMode="Single">
+                <ListView Margin="10" Name="SlideshowList" FontSize="30" SelectionMode="Single" 
+                          ItemsSource="{Binding Controller.SavedSlideshows}">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <EventSetter Event="MouseDoubleClick" Handler="OnMouseDoubleClicked" />

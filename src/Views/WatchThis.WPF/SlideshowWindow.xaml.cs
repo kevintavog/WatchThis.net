@@ -52,6 +52,11 @@ namespace WatchThis.Wpf
             ShowControls();
         }
 
+        public void UpdateUiState()
+        {
+            // Nothing to do - use the XAML, dude!
+        }
+
         private void Close(object sender, ExecutedRoutedEventArgs e)
         {
             logger.Info("Close");
@@ -67,23 +72,17 @@ namespace WatchThis.Wpf
 
         private void PreviousImage(object sender, ExecutedRoutedEventArgs e)
         {
-            logger.Info("PreviousImage");
             Driver.Previous();
-            this.FirePropertyChanged(PropertyChanged, () => Driver);
         }
 
         private void PauseResume(object sender, ExecutedRoutedEventArgs e)
         {
-            logger.Info("PauseResume");
             Driver.PauseOrResume();
-            this.FirePropertyChanged(PropertyChanged, () => Driver);
         }
 
         private void NextImage(object sender, ExecutedRoutedEventArgs e)
         {
-            logger.Info("NextImage");
             Driver.Next();
-            this.FirePropertyChanged(PropertyChanged, () => Driver);
         }
 
         private void ToggleFullScreen(object sender, ExecutedRoutedEventArgs e)
@@ -146,45 +145,29 @@ namespace WatchThis.Wpf
             Canvas.SetLeft(ControlsPanel, (args.NewSize.Width - ControlsPanel.ActualWidth) / 2);
         }
 
-        public void DisplayImage(ImageInformation imageInfo)
+      	public object LoadImage(ImageInformation imageInfo)
         {
-            logger.Info("Show image: {0}", imageInfo.FullPath);
+            var source = new BitmapImage();
+            source.BeginInit();
+            source.UriSource = new Uri(imageInfo.FullPath);
+            source.CacheOption = BitmapCacheOption.OnLoad;
+            source.EndInit();
 
-            BitmapImage source = null;
-            Task.Factory.StartNew(() =>
-            {
-                source = new BitmapImage();
-                source.BeginInit();
-                source.UriSource = new Uri(imageInfo.FullPath);
-                source.CacheOption = BitmapCacheOption.OnLoad;
-                source.EndInit();
+            // To allow the image to be used by the UI thread...
+            source.Freeze();
+            return source;
+        }
 
-                // To allow the image to be used by the UI thread...
-                source.Freeze();
-            })
-            .ContinueWith( (t) =>
-            {
-                InvokeOnUiThread(() => Image.Source = source);
-                return t;
-            });
+        public string DisplayImage(object imageData)
+        {
+            Image.Source = (BitmapImage) imageData;
+            return "";
         }
 
         public void Error(string message)
         {
             // TODO: Inform the user, somehow
             logger.Error("Driver reported an error: {0}", message);
-        }
-
-        public void ImagesAvailable()
-        {
-            logger.Info("ImagesAvailable: {0}", Driver.Model.ImageList.Count);
-            Driver.Play();
-        }
-
-        public void ImagesLoaded()
-        {
-            logger.Info("ImagesLoaded: {0}", Driver.Model.ImageList.Count);
-            Driver.Play();
         }
 
         public void InvokeOnUiThread(Action action)

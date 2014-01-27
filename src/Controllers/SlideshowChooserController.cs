@@ -1,10 +1,10 @@
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using NLog;
+using System.IO;
 using WatchThis.Models;
 using WatchThis.Utilities;
-using System.IO;
 
 namespace WatchThis.Controllers
 {
@@ -89,7 +89,7 @@ namespace WatchThis.Controllers
 			{
 				EditedSlideshow.FolderList.Add(new FolderModel { Path = folder, Recursive = true });
 			}
-		}
+        }
 
 		public void AddEditDroppedFolders(IList<string> paths)
 		{
@@ -127,7 +127,7 @@ namespace WatchThis.Controllers
 					selectedFolders.Count, string.Join("\r\n", firstFew));
 			}
 
-			if (Viewer.AskQuestion(message))
+			if (Viewer.AskQuestion("Verify remove", message))
 			{
 				foreach (var fm in selectedFolders)
 				{
@@ -143,7 +143,7 @@ namespace WatchThis.Controllers
 			if (Viewer.IsEditActive)
 			{
 				if (EditedSlideshow.FolderList.Count < 1 || 
-					Viewer.AskQuestion("Are you sure you want to clear the current slideshow?"))
+					Viewer.AskQuestion("Verify clear", "Are you sure you want to clear the current slideshow?"))
 				{
 					EditedSlideshow.Reset();
 				}
@@ -200,14 +200,14 @@ namespace WatchThis.Controllers
 			SavedSlideshows = slideshowModels;
 		}
 
-		private bool AskQuestion(string message, params object[] args)
+		private bool AskQuestion(string caption, string message, params object[] args)
 		{
-			return Viewer.AskQuestion(string.Format(message, args));
+			return Viewer.AskQuestion(caption, string.Format(message, args));
 		}
 
-		private void ShowMessage(string message, params object[] args)
+		private void ShowMessage(string caption, string message, params object[] args)
 		{
-			Viewer.ShowMessage(string.Format(message, args));
+			Viewer.ShowMessage(caption, string.Format(message, args));
 		}
 	}
 }

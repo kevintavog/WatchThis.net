@@ -1,6 +1,7 @@
 ﻿using NLog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Windows;
@@ -8,170 +9,58 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using WatchThis.Controllers;
 using WatchThis.Models;
+using WatchThis.Utilities;
 
 namespace WatchThis.Wpf
 {
-    public partial class SlideshowListView : Window, ISlideshowListViewer, IPlatformService
+    public partial class SlideshowListView : Window, ISlideshowPickerViewer, IPlatformService, INotifyPropertyChanged
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        IList<SlideshowModel> _slideshowModels = new List<SlideshowModel>();
-        public SlideshowModel NewSlideshow { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+        public SlideshowChooserController Controller { get; set; }
+
         string _lastAddedPath;
 
         public SlideshowListView()
         {
-            NewSlideshow = new SlideshowModel();
+            Controller = new SlideshowChooserController(this, this);
             InitializeComponent();
 
             SlideshowList.Focus();
 
-            SlideshowEnumerator.FindSlideshows(
-                Preferences.Instance.SlideshowwPath,
-                this,
-                this);
+            Controller.FindSavedSlideshows();
+            this.FirePropertyChanged(PropertyChanged, () => Controller);
         }
 
         private void OnMouseDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            InvokeOnUiThread(delegate { RunSelectedSlideshow(); });
-        }
-
-        private void RunSelectedSlideshow()
-        {
-            SlideshowModel model = null;
-            if (TabControl.SelectedItem == CreatedTabItem)
-            {
-                model = NewSlideshow;
-            }
-            else
-            {
-                var index = SlideshowList.SelectedIndex;
-                if (index >= 0 && index < _slideshowModels.Count)
-                {
-                    model = _slideshowModels[index];
-                }
-            }
-
-            if (model != null)
-            {
-                logger.Info("Run {0}", model.Name);
-                var show = new SlideshowWindow(model);
-                show.Show();
-            }
+            InvokeOnUiThread(delegate { Controller.RunSlideshow(); });
         }
 
         private void RunSlideshow(object sender, ExecutedRoutedEventArgs args)
         {
-            logger.Info("RunSlideshow");
-            RunSelectedSlideshow();
-        }
-
-        private void SaveAs(object sender, ExecutedRoutedEventArgs args)
-        {
-            logger.Info("SaveAs");
-            var dialog = new Microsoft.Win32.SaveFileDialog();
-            dialog.DefaultExt = SlideshowModel.Extension;
-            dialog.InitialDirectory = Preferences.Instance.SlideshowwPath;
-            dialog.Filter = "Slideshow documents (*.slideshow)|*.slideshow";
-            var response = dialog.ShowDialog();
-            if (response == true)
-            {
-                try
-                {
-                    var filename = dialog.FileName;
-                    NewSlideshow.Name = Path.GetFileNameWithoutExtension(filename);
-                    NewSlideshow.Save(filename);
-
-                    SlideshowEnumerator.FindSlideshows(Preferences.Instance.SlideshowwPath, this, this);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(
-                        string.Format("Failed saving '{0}'; {1}", dialog.FileName, ex.Message),
-                        "Failed saving slideshow",
-                        MessageBoxButton.OK);
-                }
-            }
-        }
-
-        private void SetSlideshowFolder(object sender, ExecutedRoutedEventArgs args)
-        {
-            logger.Info("SetSlideshowFolder");
-            var dialog = new System.Windows.Forms.FolderBrowserDialog();
-            var start = Preferences.Instance.SlideshowwPath;
-            if (!Directory.Exists(start))
-            {
-                start = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-            }
-            dialog.SelectedPath = start;
-            dialog.Description = string.Format("Choose a folder with WatchThis slideshow files in it ({0})", SlideshowModel.Extension);
-            if (System.Windows.Forms.DialogResult.OK == dialog.ShowDialog())
-            {
-                Preferences.Instance.SlideshowwPath = dialog.SelectedPath;
-
-                SlideshowEnumerator.FindSlideshows(
-                    Preferences.Instance.SlideshowwPath,
-                    this,
-                    this);
-
-                Preferences.Instance.Save();
-            }
+            Controller.RunSlideshow();
         }
 
         private void AddFolder(object sender, ExecutedRoutedEventArgs args)
         {
-            logger.Info("AddFolder");
-            var dialog = new System.Windows.Forms.FolderBrowserDialog();
-            dialog.Description = "Choose a folder with images";
-            dialog.SelectedPath = _lastAddedPath;
-            if (System.Windows.Forms.DialogResult.OK == dialog.ShowDialog())
-            {
-                NewSlideshow.FolderList.Add(new FolderModel { Path = dialog.SelectedPath, Recursive = true });
-                _lastAddedPath = dialog.SelectedPath;
-            }
+            Controller.AddEditFolder();
+        }
+
+        private void ClearEdit(object sender, ExecutedRoutedEventArgs args)
+        {
+            Controller.ClearEdit();
         }
 
         private void RemoveSelectedFolders(object sender, ExecutedRoutedEventArgs args)
         {
-            var selected = CreatedListView.SelectedItems;
-            if (selected.Count < 1)
+            var folderList = new List<FolderModel>();
+            foreach (var item in CreatedListView.SelectedItems)
             {
-                return;
+                folderList.Add((FolderModel)item);
             }
 
-            string message;
-            if (selected.Count == 1)
-            {
-                message = string.Format("Are you sure you want to remove '{0}' from the list?", ((FolderModel)selected[0]).Path);
-            }
-            else 
-            {
-                var firstFour = new string[5];
-                for (int idx = 0; idx < Math.Min(firstFour.Length - 1, selected.Count); ++idx)
-                {
-                    firstFour[idx] = ((FolderModel)selected[idx]).Path;
-                }
-                if (selected.Count >= firstFour.Length)
-                {
-                    firstFour[firstFour.Length - 1] = "And a few more";
-                }
-
-                message = string.Format("Are you sure you want to remove these {0} items from the list?\r\n{1}", 
-                    selected.Count, string.Join("\r\n", firstFour));
-            }
-
-            var response = MessageBox.Show(
-                message,
-                "Confirm removing item",
-                MessageBoxButton.YesNoCancel,
-                MessageBoxImage.Question);
-            if (response == MessageBoxResult.Yes)
-            {
-                for (int idx = selected.Count - 1; idx >= 0; --idx)
-                {
-                    NewSlideshow.FolderList.Remove((FolderModel)selected[idx]);
-                }
-            }
+            Controller.RemoveEditFolders(folderList);
         }
 
         private void Exit(object sender, ExecutedRoutedEventArgs args)
@@ -191,13 +80,7 @@ namespace WatchThis.Wpf
 
         void FolderDrop(object sender, DragEventArgs e)
         {
-            logger.Info("Drop");
-            var folders = GetDropFolders(e);
-            foreach (var n in folders)
-            {
-                NewSlideshow.FolderList.Add(new FolderModel { Path = n, Recursive = true });
-                _lastAddedPath = n;
-            }
+            Controller.AddEditDroppedFolders(GetDropFolders(e));
         }
 
         IList<string> GetDropFolders(DragEventArgs e)
@@ -219,25 +102,58 @@ namespace WatchThis.Wpf
             }
             return folders;
         }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
 
             if (e.Key == Key.Enter)
             {
-                RunSelectedSlideshow();
+                Controller.RunSlideshow();
             }
         }
 
-        public void EnumerationCompleted(IList<SlideshowModel> slideshowModels)
+        public string ChooseFolder(string message)
         {
-            _slideshowModels = slideshowModels;
-            SlideshowList.ItemsSource = slideshowModels;
-            if (slideshowModels.Count > 0)
+            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            dialog.Description = message;
+            dialog.SelectedPath = _lastAddedPath;
+            if (System.Windows.Forms.DialogResult.OK == dialog.ShowDialog())
             {
-                SlideshowList.SelectedIndex = 0;
+                _lastAddedPath = dialog.SelectedPath;
+                return dialog.SelectedPath;
             }
+
+            return null;
         }
+
+        public void RunSlideshow(SlideshowModel model)
+        {
+            var show = new SlideshowWindow(model);
+            show.Show();
+        }
+
+        public bool AskQuestion(string caption, string question)
+        {
+            var response = MessageBox.Show(
+                question,
+                caption,
+                MessageBoxButton.YesNoCancel,
+                MessageBoxImage.Question);
+            return response == MessageBoxResult.Yes;
+        }
+
+        public void ShowMessage(string caption, string message)
+        {
+            MessageBox.Show(
+                message,
+                caption,
+                MessageBoxButton.OK);
+        }
+
+        public bool IsEditActive { get { return TabControl.SelectedItem == EditTabItem; } }
+        public bool IsSavedActive { get { return TabControl.SelectedItem == SavedTabItem; } }
+        public SlideshowModel SelectedSavedModel { get { return SlideshowList.SelectedItem as SlideshowModel; } }
 
         public void InvokeOnUiThread(Action action)
         {
