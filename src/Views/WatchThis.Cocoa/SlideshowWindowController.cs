@@ -190,12 +190,6 @@ namespace WatchThis
 			logger.Error("Error from driver: '{0}'", message);
 		}
 
-		public void ImagesLoaded()
-		{
-			driver.Play();
-			UpdateUiState();
-		}
-
 		public object LoadImage(ImageInformation imageInfo)
 		{
 			return NSData.FromFile(imageInfo.FullPath);

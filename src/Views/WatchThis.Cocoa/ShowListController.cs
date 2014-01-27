@@ -141,7 +141,7 @@ namespace WatchThis
 			return null;
 		}
 
-		public bool AskQuestion(string message)
+		public bool AskQuestion(string caption, string message)
 		{
 			var alert = NSAlert.WithMessage(message, "No", "Yes", "Cancel", "");
 			var response = (NSAlertType)alert.RunSheetModal(Window);
@@ -149,7 +149,7 @@ namespace WatchThis
 			return response == NSAlertType.AlternateReturn;
 		}
 
-		public void ShowMessage(string message)
+		public void ShowMessage(string caption, string message)
 		{
 			NSAlert.WithMessage(message, "Close", "", "", "").RunSheetModal(Window);
 		}
