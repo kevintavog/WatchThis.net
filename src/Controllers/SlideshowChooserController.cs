@@ -150,6 +150,18 @@ namespace WatchThis.Controllers
 			}
 		}
 
+		public void EditSlideshow()
+		{
+			logger.Info("edit slideshow");
+			Viewer.ShowMessage("Not implemented", "EditSlideshow is not implemented yet");
+		}
+
+		public void OpenSlideshow()
+		{
+			logger.Info("open slideshow");
+			Viewer.ShowMessage("Not implemented", "OpenSlideshow is not implemented yet");
+		}
+
 		/// <summary>
 		/// Deletes the edited slideshow if the edited tab is active, otherwise deletes the currently selected
 		/// saved slideshow.

@@ -211,12 +211,12 @@ namespace WatchThis
 
 		partial void editSlideshow(MonoMac.Foundation.NSObject sender)
 		{
-			logger.Info("edit slideshow");
+			_controller.EditSlideshow();
 		}
 
 		partial void openSlideshow(MonoMac.Foundation.NSObject sender)
 		{
-			logger.Info("open slideshow");
+			_controller.OpenSlideshow();
 		}
 
 		void StepperDidChange()
