@@ -20,7 +20,10 @@
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource ClearEdit}" Executed="ClearEdit" />
+        <CommandBinding Command="{StaticResource DeleteSlideshow}" Executed="DeleteSlideshow" />
         <CommandBinding Command="{StaticResource Exit}" Executed="Exit" />
+        <CommandBinding Command="{StaticResource OpenSlideshow}" Executed="OpenSlideshow" />
+        <CommandBinding Command="{StaticResource EditSlideshow}" Executed="EditSlideshow" />
         <CommandBinding Command="{StaticResource Run}" Executed="RunSlideshow" />
         <CommandBinding Command="{StaticResource AddFolder}" Executed="AddFolder" />
         <CommandBinding Command="{StaticResource RemoveFolder}" Executed="RemoveSelectedFolders" />
@@ -101,24 +104,30 @@
                 <TabItem.Header>
                     <TextBlock>Saved</TextBlock>
                 </TabItem.Header>
-                <ListView Margin="10" Name="SlideshowList" FontSize="30" SelectionMode="Single" 
-                          ItemsSource="{Binding Controller.SavedSlideshows}">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <EventSetter Event="MouseDoubleClick" Handler="OnMouseDoubleClicked" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.Resources>
-                        <Style TargetType="GridViewColumnHeader">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                        </Style>
-                    </ListView.Resources>
-                    <ListView.View >
-                        <GridView AllowsColumnReorder="False"  >
-                            <GridViewColumn DisplayMemberBinding="{Binding Name}" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" >
+                        <Button Margin="10" MinWidth="60" Command="{StaticResource EditSlideshow}" >Edit</Button>
+                        <Button Margin="10" MinWidth="60" HorizontalAlignment="Right" FontSize="24" Command="{StaticResource Run}" >Run</Button>
+                    </StackPanel>
+                    <ListView Margin="10" Name="SlideshowList" FontSize="30" SelectionMode="Single" 
+                              ItemsSource="{Binding Controller.SavedSlideshows}">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <EventSetter Event="MouseDoubleClick" Handler="OnMouseDoubleClicked" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.Resources>
+                            <Style TargetType="GridViewColumnHeader">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </Style>
+                        </ListView.Resources>
+                        <ListView.View >
+                            <GridView AllowsColumnReorder="False"  >
+                                <GridViewColumn DisplayMemberBinding="{Binding Name}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </DockPanel>
             </TabItem>
         </TabControl>
 

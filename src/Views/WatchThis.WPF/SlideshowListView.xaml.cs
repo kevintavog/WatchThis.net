@@ -49,12 +49,12 @@ namespace WatchThis.Wpf
 
         private void OpenSlideshow(object sender, ExecutedRoutedEventArgs args)
         {
-            logger.Info("TODO: OpenSlideshow");
+            Controller.OpenSlideshow();
         }
 
         private void EditSlideshow(object sender, ExecutedRoutedEventArgs args)
         {
-            logger.Info("TODO: EditSlideshow");
+            Controller.EditSlideshow();
         }
 
         private void DeleteSlideshow(object sender, ExecutedRoutedEventArgs args)
