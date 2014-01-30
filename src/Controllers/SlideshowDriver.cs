@@ -201,29 +201,22 @@ namespace WatchThis.Controllers
 
 		private void ShowImage(ImageInformation imageInfo)
 		{
-			object image = null;
 			Task.Factory.StartNew(() =>
 				{
-					image = Viewer.LoadImage(imageInfo);
-				})
-				.ContinueWith( t => 
+					try
 					{
-						LogFailedTask(t, "Loading image '{0}'", imageInfo.FullPath);
-						if (!t.IsFaulted && !t.IsCanceled)
-						{
-							PlatformService.InvokeOnUiThread(() =>
-								{
-									var message = Viewer.DisplayImage(image);
-									logger.Info("image {0}; {1}", imageInfo.FullPath, message);
-								});
-						}
-
-						return t;
-					})
-				.ContinueWith( t =>
+						object image = Viewer.LoadImage(imageInfo);
+						PlatformService.InvokeOnUiThread(() =>
+							{
+								var message = Viewer.DisplayImage(image);
+								logger.Info("image {0}; {1}", imageInfo.FullPath, message);
+							});
+					}
+					catch (Exception e)
 					{
-						LogFailedTask(t, "Displaying image '{0}'", imageInfo.FullPath);
-					});
+						logger.Error("Error loading image '{0}': {1}", imageInfo.FullPath, e);
+					}
+				});
 		}
 
 		private void LogFailedTask(Task t, string baseMessage, params object[] args)

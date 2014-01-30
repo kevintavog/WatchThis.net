@@ -192,7 +192,10 @@ namespace WatchThis
 
 		public object LoadImage(ImageInformation imageInfo)
 		{
-			return NSData.FromFile(imageInfo.FullPath);
+			using (var pool = new NSAutoreleasePool())
+			{
+				return NSData.FromFile(imageInfo.FullPath);
+			}
 		}
 
 		public string DisplayImage(object imageData)
