@@ -19,9 +19,7 @@ Edit tab
  - Replace Name with Description
 
 Saved tab
- - Add Edit button (load to Edit tab)
- - WPF: Add Run button
- - WPF: Add Delete button, with confirmation
+ - implement Edit button (load to Edit tab)
 
 Properties dialog
  - Per slideshow
