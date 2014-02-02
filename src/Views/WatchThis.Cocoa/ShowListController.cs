@@ -8,6 +8,7 @@ using NLog;
 using WatchThis.Models;
 using WatchThis.Controllers;
 using WatchThis.Utilities;
+using System.Drawing;
 
 namespace WatchThis
 {
@@ -57,70 +58,16 @@ namespace WatchThis
 
 			Window.RegisterForDraggedTypes(new string[] { NSPasteboard.NSFilenamesType } );
 			Window.DropAction = (l) => DroppedPaths(l);
+			Window.Delegate = new SlideshowListDelegate(this);
 
 			savedTableView.DoubleClick += (sender, e) => runSlideshow();
 			slideDurationStepper.Activated += (sender, e) => StepperDidChange();
 
-			NotifyPropertyChangedHelper.SetupPropertyChanged(_controller, ObjectChanged);
+			NotifyPropertyChangedHelper.SetupPropertyChanged(_controller, PropertyChanged);
 
 			_controller.FindSavedSlideshows();
 		}
 
-		private void ObjectChanged(object sender, string propertyName)
-		{
-			var handled = false;
-			if (sender == _controller)
-			{
-				switch (propertyName)
-				{
-					case "SavedSlideshows":
-						savedTableView.ReloadData();
-						handled = true;
-						break;
-
-					case "EditedSlideshow":
-						slideDurationStepper.IntValue = (int)_controller.EditedSlideshow.SlideSeconds;
-						slideDuration.IntegerValue = (int)_controller.EditedSlideshow.SlideSeconds;
-						handled = true;
-						break;
-
-					default:
-						break;
-				}
-			}
-			else if (sender == _controller.EditedSlideshow)
-			{
-				switch (propertyName)
-				{
-					case "SlideSeconds":
-						slideDurationStepper.IntValue = (int)_controller.EditedSlideshow.SlideSeconds;
-						slideDuration.IntegerValue = (int)_controller.EditedSlideshow.SlideSeconds;
-						handled = true;
-						break;
-
-					default:
-						break;
-				}
-			}
-			else if (sender == _controller.EditedSlideshow.FolderList)
-			{
-				switch (propertyName)
-				{
-					case "collection":
-						folderTableView.ReloadData();
-						handled = true;
-						break;
-
-					default:
-						break;
-				}
-			}
-
-			if (!handled)
-			{
-				logger.Info("Unhandled property updated: {0} [{1}]", propertyName, sender.GetType().Name);
-			}
-		}
 
 #region ISlideshowPickerViewer
 		public string ChooseFolder(string message)
@@ -141,17 +88,50 @@ namespace WatchThis
 			return null;
 		}
 
-		public bool AskQuestion(string caption, string message)
+		public QuestionResponseType AskQuestion(string caption, string message)
 		{
 			var alert = NSAlert.WithMessage(message, "No", "Yes", "Cancel", "");
 			var response = (NSAlertType)alert.RunSheetModal(Window);
-			logger.Info("responded {0} to {1}", response, message);
-			return response == NSAlertType.AlternateReturn;
+			logger.Info("responded {0} to '{1}'", response, message);
+
+			switch (response)
+			{
+				case NSAlertType.AlternateReturn:
+					return QuestionResponseType.Yes;
+				case NSAlertType.DefaultReturn:
+					return QuestionResponseType.No;
+				default:
+					return QuestionResponseType.Cancel;
+			}
 		}
 
 		public void ShowMessage(string caption, string message)
 		{
 			NSAlert.WithMessage(message, "Close", "", "", "").RunSheetModal(Window);
+		}
+
+		public string GetValueFromUser(string caption, string message, string defaultValue)
+		{
+			var alert = NSAlert.WithMessage(
+				message,
+				"OK",
+				"Cancel",
+				"",
+				"");
+
+			var textField = new NSTextField(new RectangleF(0, 0, 200, 24));
+			textField.StringValue = defaultValue;
+			alert.AccessoryView = textField;
+			alert.Window.InitialFirstResponder = textField;
+
+			var response = (NSAlertType) alert.RunSheetModal(Window);
+			logger.Info("ask value responded {0} to '{1}'", response, message);
+			if (response == NSAlertType.DefaultReturn)
+			{
+				return textField.StringValue;
+			}
+
+			return null;
 		}
 
 		public void RunSlideshow(SlideshowModel model)
@@ -204,6 +184,11 @@ namespace WatchThis
 			_controller.ClearEdit();
 		}
 
+		partial void saveSlideshow(MonoMac.Foundation.NSObject sender)
+		{
+			_controller.SaveSlideshow();
+		}
+
 		partial void deleteSlideshow(MonoMac.Foundation.NSObject sender)
 		{
 			_controller.DeleteSlideshow();
@@ -234,44 +219,12 @@ namespace WatchThis
 			tabView.Select(savedTabView);
 		}
 
-#endregion
-
-
-#if false
-		partial void saveSlideshow(MonoMac.Foundation.NSObject sender)
+		public bool WindowShouldClose()
 		{
-			logger.Info("Saving slideshow");
-			var savePanel = new NSSavePanel
-			{
-				Prompt = "Save slideshow",
-				CanCreateDirectories = true,
-				DirectoryUrl = NSUrl.FromFilename(Preferences.Instance.SlideshowwPath)
-			};
-
-			var result = (NsButtonId)savePanel.RunModal();
-			if (result == NsButtonId.OK)
-			{
-				try
-				{
-					var filename = savePanel.Url.Path;
-					_newSlideshow.Name = Path.GetFileNameWithoutExtension(filename);
-					_newSlideshow.Save(filename);
-
-					RefreshSlideshows();
-				}
-				catch (Exception ex)
-				{
-					var alert = NSAlert.WithMessage(
-						string.Format("Failed saving '{0}'; {1}", savePanel.Url.Path, ex.Message),
-						"Close",
-						"",
-						"",
-						"");
-					alert.RunSheetModal(Window);
-				}
-			}
+			return _controller.CanClose();
 		}
-#endif
+
+#endregion
 
 #if false
 		partial void openSlideshowFolder(MonoMac.Foundation.NSObject sender)
@@ -334,6 +287,78 @@ namespace WatchThis
 		public void InvokeOnUiThread(Action action)
 		{
 			BeginInvokeOnMainThread(delegate { action(); } );
+		}
+
+
+		private void PropertyChanged(object sender, string propertyName)
+		{
+			var handled = false;
+			if (sender == _controller)
+			{
+				switch (propertyName)
+				{
+					case "SavedSlideshows":
+						savedTableView.ReloadData();
+						handled = true;
+						break;
+
+					case "EditedSlideshow":
+						slideDurationStepper.IntValue = (int)_controller.EditedSlideshow.SlideSeconds;
+						slideDuration.IntegerValue = (int)_controller.EditedSlideshow.SlideSeconds;
+						handled = true;
+						break;
+
+					default:
+						break;
+				}
+			}
+			else if (sender == _controller.EditedSlideshow)
+			{
+				switch (propertyName)
+				{
+					case "SlideSeconds":
+						slideDurationStepper.IntValue = (int)_controller.EditedSlideshow.SlideSeconds;
+						slideDuration.IntegerValue = (int)_controller.EditedSlideshow.SlideSeconds;
+						handled = true;
+						break;
+
+					default:
+						break;
+				}
+			}
+			else if (sender == _controller.EditedSlideshow.FolderList)
+			{
+				switch (propertyName)
+				{
+					case "collection":
+						folderTableView.ReloadData();
+						handled = true;
+						break;
+
+					default:
+						break;
+				}
+			}
+
+			if (!handled)
+			{
+				logger.Info("Unhandled property updated: {0} [{1}]", propertyName, sender.GetType().Name);
+			}
+		}
+	}
+
+	class SlideshowListDelegate : NSWindowDelegate
+	{
+		private ShowListController controller;
+
+		public SlideshowListDelegate(ShowListController controller)
+		{
+			this.controller = controller;
+		}
+
+		public override bool WindowShouldClose(NSObject sender)
+		{
+			return controller.WindowShouldClose();
 		}
 	}
 }

@@ -59,14 +59,12 @@ namespace WatchThis
 
 		[Action ("runSlideshow:")]
 		partial void runSlideshow (MonoMac.Foundation.NSObject sender);
+
+		[Action ("saveSlideshow:")]
+		partial void saveSlideshow (MonoMac.Foundation.NSObject sender);
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (savedTabView != null) {
-				savedTabView.Dispose ();
-				savedTabView = null;
-			}
-
 			if (editTabView != null) {
 				editTabView.Dispose ();
 				editTabView = null;
@@ -80,6 +78,11 @@ namespace WatchThis
 			if (savedTableView != null) {
 				savedTableView.Dispose ();
 				savedTableView = null;
+			}
+
+			if (savedTabView != null) {
+				savedTabView.Dispose ();
+				savedTabView = null;
 			}
 
 			if (slideDuration != null) {

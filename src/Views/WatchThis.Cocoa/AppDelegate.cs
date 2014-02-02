@@ -12,6 +12,7 @@ namespace WatchThis
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private bool startedSlideshow;
+		private ShowListController controller;
 
 
 		public AppDelegate()
@@ -21,6 +22,12 @@ namespace WatchThis
 		public override bool ApplicationShouldTerminateAfterLastWindowClosed(NSApplication sender)
 		{
 			return true;
+		}
+
+		public override NSApplicationTerminateReply ApplicationShouldTerminate(NSApplication sender)
+		{
+			var close = (controller != null) ? controller.WindowShouldClose() : true;
+			return close ? NSApplicationTerminateReply.Now : NSApplicationTerminateReply.Cancel;
 		}
 
 		public override void FinishedLaunching(NSObject notification)
@@ -34,7 +41,7 @@ namespace WatchThis
 					"Preferences",
 					"com.rangic.WatchThis.xml"));
 
-				var controller = new ShowListController();
+				controller = new ShowListController();
 				controller.Window.MakeKeyAndOrderFront(this);
 			}
 		}
