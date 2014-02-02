@@ -139,7 +139,10 @@ namespace WatchThis.Controllers
 			if (Viewer.IsSavedActive)
 			{
 				model = Viewer.SelectedSavedModel;
-				logger.Info("Run saved slideshow {0}", model.Filename);
+                if (model != null)
+                {
+                    logger.Info("Run saved slideshow {0}", model.Filename);
+                }
 			}
 			else
 			{
@@ -280,6 +283,23 @@ namespace WatchThis.Controllers
 						string.Join("_", name.Split(
 							Path.GetInvalidFileNameChars(),
 							StringSplitOptions.RemoveEmptyEntries)).Trim());
+
+                    var directoryName = Path.GetDirectoryName(filename);
+                    if (!Directory.Exists(directoryName))
+                    {
+                        try
+                        {
+                            logger.Info("Creating slideshow directory: '{0}'", directoryName);
+                            Directory.CreateDirectory(directoryName);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error("Error creating directory '{0}': {1}", directoryName, ex);
+                            ShowMessage("Save error", "There was an error creating the directory {0}: {1}", directoryName, ex.Message);
+                            continue;
+                        }
+                    }
+
 					try
 					{
 						logger.Info("Saving to '{0}'", filename);

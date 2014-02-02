@@ -52,6 +52,11 @@ namespace WatchThis.Wpf
             Controller.OpenSlideshow();
         }
 
+        private void SaveSlideshow(object sender, ExecutedRoutedEventArgs args)
+        {
+            Controller.SaveSlideshow();
+        }
+
         private void EditSlideshow(object sender, ExecutedRoutedEventArgs args)
         {
             Controller.EditSlideshow();
@@ -138,6 +143,11 @@ namespace WatchThis.Wpf
             }
         }
 
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            e.Cancel = !Controller.CanClose();
+        }
+
         public string ChooseFolder(string message)
         {
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -158,14 +168,23 @@ namespace WatchThis.Wpf
             show.Show();
         }
 
-        public bool AskQuestion(string caption, string question)
+        public QuestionResponseType AskQuestion(string caption, string question)
         {
             var response = MessageBox.Show(
                 question,
                 caption,
                 MessageBoxButton.YesNoCancel,
                 MessageBoxImage.Question);
-            return response == MessageBoxResult.Yes;
+
+            switch (response)
+            {
+                case MessageBoxResult.Yes:
+                    return QuestionResponseType.Yes;
+                case MessageBoxResult.No:
+                    return QuestionResponseType.No;
+                default:
+                    return QuestionResponseType.Cancel;
+            }
         }
 
         public void ShowMessage(string caption, string message)
@@ -175,6 +194,12 @@ namespace WatchThis.Wpf
                 caption,
                 MessageBoxButton.OK);
         }
+
+        public string GetValueFromUser(string caption, string message, string defaultValue)
+        {
+            return GetValueDialog.Show(this, caption, message, defaultValue);
+        }
+
 
         public bool IsEditActive { get { return TabControl.SelectedItem == EditTabItem; } }
         public bool IsSavedActive { get { return TabControl.SelectedItem == SavedTabItem; } }

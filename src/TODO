@@ -1,9 +1,8 @@
 Watch This
 
-Save feature:
- - WPF: Check for changed on Close & Quit
- - WPF: Add save menu, hook it up
 
+Changes:
+ - Disable menu items & buttons (OR show messages if it's REALLY helpful)
 
 Misc
  - WPF: Make files double-clickable (associate with WatchThis.app/exe)
