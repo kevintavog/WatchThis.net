@@ -1,12 +1,15 @@
 Watch This
 
+
+Changes:
+ - Disable menu items & buttons (OR show messages if it's REALLY helpful)
+
 Misc
  - WPF: Make files double-clickable (associate with WatchThis.app/exe)
  - Connect Ctrl+Tab & Shift+Ctrl+Tab
  - Hide / Disable List window while slideshow active
 
 Global settings
- - Consider separating settings into areas to enable better recovery on read errors
  - Slideshows directory: <Pictures>/WatchThisSlideshows
  - Default background color: black
  - Default slide duration: 10 seconds
@@ -14,7 +17,6 @@ Global settings
  - Length of time controls are visible: 2 seconds
 
 Edit tab
- - Auto save edit tab to '{id}'; rename if description is provided
  - Properties button => Properties dialog
  - Replace Name with Description
 

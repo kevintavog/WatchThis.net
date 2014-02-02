@@ -89,6 +89,12 @@
                                 </menu>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="KT2-mM-iHy"/>
+                            <menuItem title="Save" keyEquivalent="s" id="op3-Te-err">
+                                <connections>
+                                    <action selector="saveSlideshow:" target="-1" id="ttL-Wb-Rz7"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="rUQ-dl-ppv"/>
                             <menuItem title="Edit" keyEquivalent="e" id="Ca6-6n-u3Y">
                                 <connections>
                                     <action selector="editSlideshow:" target="-1" id="zp0-mP-FhX"/>

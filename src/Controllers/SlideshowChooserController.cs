@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using WatchThis.Models;
 using WatchThis.Utilities;
 
@@ -45,6 +46,7 @@ namespace WatchThis.Controllers
 
 		private IList<SlideshowModel> _savedSlideshows;
 		private SlideshowModel _editedSlideshow;
+		private bool _editedHasChanged;
 
 
 
@@ -54,6 +56,75 @@ namespace WatchThis.Controllers
 			PlatformService = platformService;
 			EditedSlideshow =  new SlideshowModel();
 			SavedSlideshows = new List<SlideshowModel>();
+
+			NotifyPropertyChangedHelper.SetupPropertyChanged(EditedSlideshow, (c, h) => _editedHasChanged = true);
+
+			var filename = SlideshowModel.EnsureExtension(Preferences.Instance.LastEditedFilename);
+			if (File.Exists(filename))
+			{
+				try
+				{
+					EditedSlideshow = SlideshowModel.ParseFile(filename);
+					EditedSlideshow.Filename = null;
+				}
+				catch (Exception ex)
+				{
+					logger.Error("Error loading lastEdited '{0}': {1}", filename, ex);
+				}
+			}
+		}
+
+		public bool CanClose()
+		{
+			logger.Info("ChooserController.CanClose");
+			if (string.IsNullOrWhiteSpace(EditedSlideshow.Filename))
+			{
+				// If it hasn't been saved yet, save it as the lastEdited.
+				var filename = SlideshowModel.EnsureExtension(Preferences.Instance.LastEditedFilename);
+				try
+				{
+					EditedSlideshow.Name = "";
+					EditedSlideshow.Save(filename);
+				}
+				catch (Exception ex)
+				{
+					logger.Error("Error saving last edited '{0}': {1}", filename, ex);
+				}
+				EditedSlideshow.Filename = null;
+				return true;
+			}
+			else
+			{
+				// If it's been saved before, confirm it should be saved/updated.
+				return SaveIfChanged();
+			}
+		}
+
+		/// <summary>
+		/// If the EditedSlideshow has changes, ask the user if they want to save changes. Returns true
+		/// if the caller can continue, false otherwise.
+		/// True is returned if
+		/// 	1) There are no changes to EditedSlideshow - or there aren't 'worthwhile' changes
+		/// 	2) The user does NOT want to save
+		/// 	3) The user wants to save and the save succeeds
+		/// False is returned if there are worthwhile changes and:
+		/// 	1) The user canceled the 'want to save' question
+		/// 	2) The user canceled the request for the save name
+		/// 	3) The save failed
+		/// </summary>
+		private bool SaveIfChanged()
+		{
+			if (_editedHasChanged && EditedSlideshow.FolderList.Count > 0)
+			{
+				var wantSave = AskQuestion("Save changes?", "Do you want to save changes to the Edited slideshow?");
+				if (wantSave == QuestionResponseType.Yes)
+				{
+					return SaveSlideshow();
+				}
+
+				return wantSave == QuestionResponseType.No;
+			}
+			return true;
 		}
 
 		public void RunSlideshow()
@@ -68,7 +139,10 @@ namespace WatchThis.Controllers
 			if (Viewer.IsSavedActive)
 			{
 				model = Viewer.SelectedSavedModel;
-				logger.Info("Run saved slideshow {0}", model.Filename);
+                if (model != null)
+                {
+                    logger.Info("Run saved slideshow {0}", model.Filename);
+                }
 			}
 			else
 			{
@@ -77,7 +151,19 @@ namespace WatchThis.Controllers
 
 			if (model != null)
 			{
-				Viewer.RunSlideshow(model);
+				if (model.FolderList.Count < 1)
+				{
+					Viewer.ShowMessage(
+						"No folders", 
+						"There are no folders in this slideshow, there are no images to show." 
+						+ Environment.NewLine
+						+ Environment.NewLine
+						+ "Add some folders with images.");
+				}
+				else
+				{
+					Viewer.RunSlideshow(model);
+				}
 			}
 		}
 
@@ -127,7 +213,7 @@ namespace WatchThis.Controllers
 					selectedFolders.Count, string.Join("\r\n", firstFew));
 			}
 
-			if (Viewer.AskQuestion("Verify remove", message))
+			if (AskQuestion("Verify remove", message) == QuestionResponseType.Yes)
 			{
 				foreach (var fm in selectedFolders)
 				{
@@ -139,26 +225,149 @@ namespace WatchThis.Controllers
 
 		public void ClearEdit()
 		{
+			// TODO: Deal with unsaved edits
 			logger.Info("ClearEdit");
+
 			if (Viewer.IsEditActive)
 			{
-				if (EditedSlideshow.FolderList.Count < 1 || 
-					Viewer.AskQuestion("Verify clear", "Are you sure you want to clear the current slideshow?"))
+				if (SaveIfChanged())
 				{
-					EditedSlideshow.Reset();
+					if (EditedSlideshow.FolderList.Count < 1 || 
+						AskQuestion("Verify clear", "Are you sure you want to clear the current slideshow?") == QuestionResponseType.Yes)
+					{
+						EditedSlideshow.Reset();
+						_editedHasChanged = false;
+					}
 				}
 			}
+		}
+
+		public bool SaveSlideshow()
+		{
+			logger.Info("SaveSlideshow");
+			if (EditedSlideshow.FolderList.Count < 1)
+			{
+				Viewer.ShowMessage("Add a folder before saving", "A folder must be added in order to save a slideshow");
+				return false;
+			}
+
+			var name = EditedSlideshow.Name ?? "";
+			while (true)
+			{
+				name = Viewer.GetValueFromUser("Slideshow name", "Enter a name for the slideshow", name);
+				if (name == null)
+				{
+					break;
+				}
+
+				if (name.Trim().Length > 0)
+				{
+					logger.Info("Save name = '{0}'", name);
+
+					// Are there any conflicting names?
+					var match = SavedSlideshows.FirstOrDefault(s => 
+						!string.Equals(s.Filename, EditedSlideshow.Filename, StringComparison.CurrentCultureIgnoreCase) && 
+						string.Equals(name, s.Name, StringComparison.CurrentCultureIgnoreCase));
+					if (match != null)
+					{
+						ShowMessage("Name already used", "The name '{0}' is already used. Enter another name", name);
+						continue;
+					}
+
+					EditedSlideshow.Name = name;
+
+					// Report any save problems
+					var priorFilename = EditedSlideshow.Filename;
+					var filename = Path.Combine(
+						Preferences.Instance.SlideshowwFolder,
+						string.Join("_", name.Split(
+							Path.GetInvalidFileNameChars(),
+							StringSplitOptions.RemoveEmptyEntries)).Trim());
+
+                    var directoryName = Path.GetDirectoryName(filename);
+                    if (!Directory.Exists(directoryName))
+                    {
+                        try
+                        {
+                            logger.Info("Creating slideshow directory: '{0}'", directoryName);
+                            Directory.CreateDirectory(directoryName);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error("Error creating directory '{0}': {1}", directoryName, ex);
+                            ShowMessage("Save error", "There was an error creating the directory {0}: {1}", directoryName, ex.Message);
+                            continue;
+                        }
+                    }
+
+					try
+					{
+						logger.Info("Saving to '{0}'", filename);
+						EditedSlideshow.Save(filename);
+					}
+					catch (Exception ex)
+					{
+						logger.Error("Save to '{0}' failed: {1}", filename, ex);
+						ShowMessage("Save error", "There was an error saving the slideshow: {0}", ex.Message);
+						continue;
+					}
+
+					// Was the file renamed? If so, remove the prior name
+					if (priorFilename != null &&
+						!string.Equals(priorFilename, EditedSlideshow.Filename, StringComparison.CurrentCultureIgnoreCase) &&
+						File.Exists(priorFilename))
+					{
+						try
+						{
+							File.Delete(priorFilename);
+						}
+						catch (Exception ex)
+						{
+							logger.Error("Removal of old file '{0}' failed: {1}", priorFilename, ex);
+							ShowMessage("Removal error", "There was an error removing the prior file: {0}", ex.Message);
+						}
+					}
+
+					var lastEditedFilename = SlideshowModel.EnsureExtension(Preferences.Instance.LastEditedFilename);
+					if (File.Exists(lastEditedFilename))
+					{
+						try
+						{
+							File.Delete(lastEditedFilename);
+						}
+						catch (Exception ex)
+						{
+							logger.Error("Error removing last edited '{0}': {1}", lastEditedFilename, ex);
+						}
+					}
+
+					// Refresh slideshows
+					FindSavedSlideshows();
+					_editedHasChanged = false;
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		public void EditSlideshow()
 		{
 			logger.Info("edit slideshow");
+//			if (SaveIfChanged())
+//			{
+//				// Open slideshow for edit
+//			}
 			Viewer.ShowMessage("Not implemented", "EditSlideshow is not implemented yet");
 		}
 
 		public void OpenSlideshow()
 		{
 			logger.Info("open slideshow");
+//			if (SaveIfChanged()) ??
+//			{
+//				// Open slideshow
+//			}
 			Viewer.ShowMessage("Not implemented", "OpenSlideshow is not implemented yet");
 		}
 
@@ -175,17 +384,17 @@ namespace WatchThis.Controllers
 				var model = Viewer.SelectedSavedModel;
 				if (model != null)
 				{
-					if (AskQuestion("Are you sure you want to delete the slideshow '{0}'?", model.Name))
+					if (AskQuestion("Verify delete", "Are you sure you want to delete the slideshow '{0}'?", model.Name) == QuestionResponseType.Yes)
 					{
 						try
 						{
 							File.Delete(model.Filename);
-							this.FirePropertyChanged(PropertyChanged, () => SavedSlideshows);
+							FindSavedSlideshows();
 						}
 						catch (Exception ex)
 						{
 							logger.Error("Exception deleting '{0}': {1}", model.Name, ex);
-							ShowMessage("Error deleting '{0}': {1}", model.Name, ex.Message);
+							ShowMessage("Error", "Error deleting '{0}': {1}", model.Name, ex.Message);
 						}
 					}
 				}
@@ -210,9 +419,10 @@ namespace WatchThis.Controllers
 		{
 			logger.Info("Saved slideshow enumeration completed with {0} found", slideshowModels.Count);
 			SavedSlideshows = slideshowModels;
+			this.FirePropertyChanged(PropertyChanged, () => SavedSlideshows);
 		}
 
-		private bool AskQuestion(string caption, string message, params object[] args)
+		private QuestionResponseType AskQuestion(string caption, string message, params object[] args)
 		{
 			return Viewer.AskQuestion(caption, string.Format(message, args));
 		}

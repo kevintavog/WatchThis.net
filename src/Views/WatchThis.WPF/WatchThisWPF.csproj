@@ -99,11 +99,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="GetValueDialog.xaml.cs">
+      <DependentUpon>GetValueDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SlideshowWindow.xaml.cs">
       <DependentUpon>SlideshowWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="WindowsServices.cs" />
     <Compile Include="WpfExtensions.cs" />
+    <Page Include="GetValueDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SlideshowListView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

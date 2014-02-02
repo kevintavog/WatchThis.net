@@ -56,8 +56,11 @@ namespace WatchThis.Models
 		{
 //			ShowOnce = true;
 //			Order = SlideOrder.Random;
+			Filename = null;
+			Name = null;
 			SlideSeconds = 10;
 			TransitionSeconds = 1;
+			ManuallyControlled = false;
 			FolderList.Clear();
 			ImageList.Clear();
 		}
@@ -120,11 +123,18 @@ namespace WatchThis.Models
 						new XAttribute("path", fm.Path)));
 			}
 
+			filename = EnsureExtension(filename);
+			File.WriteAllText(filename, xml.ToString());
+			this.Filename = filename;
+		}
+
+		static public string EnsureExtension(string filename)
+		{
 			if (!filename.EndsWith(Extension, StringComparison.OrdinalIgnoreCase))
 			{
 				filename += Extension;
 			}
-			File.WriteAllText(filename, xml.ToString());
+			return filename;
 		}
 
 		public void Enumerate(Action itemsAvailable = null)

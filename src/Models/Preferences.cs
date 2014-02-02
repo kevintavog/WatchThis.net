@@ -10,7 +10,9 @@ namespace WatchThis.Models
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		static public Preferences Instance { get; private set; }
+
 		public string SlideshowwFolder { get; set; }
+		public string LastEditedFilename { get { return Path.Combine(Path.GetDirectoryName(Filename), "LastEdited"); } }
 
         private string Filename { get; set; }
 

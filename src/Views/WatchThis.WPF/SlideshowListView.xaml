@@ -5,12 +5,14 @@
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Title="Watch This" 
         Height="471.235" Width="730.572"
-        Icon="./Resources/WatchThisIcon.png">
+        Icon="./Resources/WatchThisIcon.png"
+        Closing="Window_Closing">
     <Window.Resources>
         <RoutedUICommand x:Key="ClearEdit" Text="Clear the edit slideshow" />
         <RoutedUICommand x:Key="OpenSlideshow" Text="Open a slideshow file directly" />
         <RoutedUICommand x:Key="EditSlideshow" Text="Edit the currently selected slideshow" />
         <RoutedUICommand x:Key="DeleteSlideshow" Text="Delete the currently selected slideshow" />
+        <RoutedUICommand x:Key="SaveSlideshow" Text="Save the slideshow" />
         <RoutedUICommand x:Key="Exit" Text="Exit the application" />
         <RoutedUICommand x:Key="Run" Text="Run the slideshow" />
         <RoutedUICommand x:Key="AddFolder" Text="Add folder" />
@@ -24,6 +26,7 @@
         <CommandBinding Command="{StaticResource Exit}" Executed="Exit" />
         <CommandBinding Command="{StaticResource OpenSlideshow}" Executed="OpenSlideshow" />
         <CommandBinding Command="{StaticResource EditSlideshow}" Executed="EditSlideshow" />
+        <CommandBinding Command="{StaticResource SaveSlideshow}" Executed="SaveSlideshow" />
         <CommandBinding Command="{StaticResource Run}" Executed="RunSlideshow" />
         <CommandBinding Command="{StaticResource AddFolder}" Executed="AddFolder" />
         <CommandBinding Command="{StaticResource RemoveFolder}" Executed="RemoveSelectedFolders" />
@@ -34,6 +37,7 @@
         <KeyBinding Command="{StaticResource ClearEdit}" Key="N" Modifiers="Control" />
         <KeyBinding Command="{StaticResource OpenSlideshow}" Key="O" Modifiers="Control" />
         <KeyBinding Command="{StaticResource EditSlideshow}" Key="E" Modifiers="Control" />
+        <KeyBinding Command="{StaticResource SaveSlideshow}" Key="S" Modifiers="Control" />
         <KeyBinding Command="{StaticResource Exit}" Key="F4" Modifiers="Alt" />
         <KeyBinding Command="{StaticResource Run}" Key="R" Modifiers="Control" />
         <KeyBinding Command="{StaticResource ActivateEditTab}" Key="E" Modifiers="Alt" />
@@ -44,6 +48,8 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_Clear" Command="{StaticResource ClearEdit}" />
                 <MenuItem Header="_Open" Command="{StaticResource OpenSlideshow}" />
+                <Separator/>
+                <MenuItem Header="_Save" Command="{StaticResource SaveSlideshow}" />
                 <Separator/>
                 <MenuItem Header="_Edit" Command="{StaticResource EditSlideshow}" />
                 <Separator/>
