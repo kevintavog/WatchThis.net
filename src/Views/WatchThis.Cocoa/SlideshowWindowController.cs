@@ -205,12 +205,16 @@ namespace WatchThis
 			// To work around possible problems in Mono's NSImage dispose: https://bugzilla.xamarin.com/show_bug.cgi?id=15081
 			System.GC.Collect();
 
-			var image = new NSImage((NSData) imageData);
+			var dataObject = (NSData) imageData;
+			var image = new NSImage(dataObject);
 			var imageRep = image.BestRepresentationForDevice(null);
 			SizeF imageSize = new SizeF(imageRep.PixelsWide, imageRep.PixelsHigh);
 			image.Size = imageSize;
 			imageView.Image = image;
 			var filterName = ApplyFilter(true);
+
+			dataObject.Release();
+
 			return string.Format("filter {0}", filterName);
 		}
 
