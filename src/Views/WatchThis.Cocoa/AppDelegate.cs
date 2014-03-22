@@ -4,10 +4,10 @@ using WatchThis.Models;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 using NLog;
+using System.Reflection;
 
 namespace WatchThis
 {
-
 	public partial class AppDelegate : NSApplicationDelegate
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -32,7 +32,20 @@ namespace WatchThis
 
 		public override void FinishedLaunching(NSObject notification)
 		{
-			logger.Info("Finished launching: startedSlideshow = {0}", startedSlideshow);
+			// On the Mac, we are running on Mono - emit the Mono revision
+			var monoVersion = "None";
+			Type monoRuntimeType;
+			MethodInfo getDisplayNameMethod;
+			if ((monoRuntimeType = typeof(object).Assembly.GetType("Mono.Runtime")) != null &&
+				(getDisplayNameMethod = monoRuntimeType.GetMethod(
+					"GetDisplayName",
+					BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.ExactBinding, null,
+					Type.EmptyTypes, null)) != null)
+			{
+				monoVersion = string.Format("Mono {0}", getDisplayNameMethod.Invoke(null, null));
+			}
+
+			logger.Info("Finished launching: .NET {0} ({1}); startedSlideshow = {2}", System.Environment.Version, monoVersion, startedSlideshow);
 			if (!startedSlideshow)
 			{
 				Preferences.Load(Path.Combine(
