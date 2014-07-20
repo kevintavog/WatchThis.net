@@ -11,7 +11,7 @@ namespace WatchThis.Models
 	{
 		private Size? _size;
 
-		public Size Size { get { if (_size == null) { _size = ExifReader.SizeFromFile(this.FullPath); } return _size.Value; } }
+		public Size Size { get { if (_size == null) { _size = ImageDetailsReader.SizeFromFile(this.FullPath); } return _size.Value; } }
 		public string Name { get; private set; }
 		public string FullPath { get; private set; }
 		public DateTime Timestamp { get; private set; }

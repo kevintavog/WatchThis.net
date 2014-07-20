@@ -151,14 +151,14 @@ namespace WatchThis.Controllers
 
 			if (model != null)
 			{
-				if (model.FolderList.Count < 1)
+                if (model.FolderList.Count < 1 && model.Search == null)
 				{
 					Viewer.ShowMessage(
-						"No folders", 
-						"There are no folders in this slideshow, there are no images to show." 
+						"No folders or search", 
+						"There are no folders and no search terms in this slideshow, there are no images to show." 
 						+ Environment.NewLine
 						+ Environment.NewLine
-						+ "Add some folders with images.");
+						+ "Add some folders with images or add a search term.");
 				}
 				else
 				{

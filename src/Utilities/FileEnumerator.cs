@@ -9,6 +9,14 @@ namespace WatchThis.Utilities
 	{
 		static public void AddFilenames(Queue<string> fileQueue, string path, Func<string,bool> accept = null)
 		{
+            AddFilenames(
+                (s) => fileQueue.Enqueue(s),
+                path,
+                accept);
+        }
+
+        static public void AddFilenames(Action<string> add, string path, Func<string,bool> accept = null)
+        {
 			if (!Directory.Exists(path))
 			{
 				throw new ArgumentException(string.Format("{0} does not exist", path));
@@ -35,7 +43,7 @@ namespace WatchThis.Utilities
 					{
 						if (accept == null || accept(f))
 						{
-							fileQueue.Enqueue(f);
+                            add(f);
 						}
 					}
 				}

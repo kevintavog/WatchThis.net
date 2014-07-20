@@ -12,6 +12,9 @@ using NLog;
 using WatchThis.Controllers;
 using WatchThis.Models;
 using MonoMac.CoreImage;
+using System.Runtime.InteropServices;
+using MonoMac.CoreFoundation;
+using System.IO;
 
 namespace WatchThis
 {
@@ -122,6 +125,7 @@ namespace WatchThis
 				}
 			};
 
+			infoText.Cell.Title = "";
 			_lastMouseMoveTime = NSDate.Now.SecondsSinceReferenceDate;
 			UpdateUiState();
 			ShowControls();
@@ -190,11 +194,16 @@ namespace WatchThis
 			logger.Error("Error from driver: '{0}'", message);
 		}
 
-		public object LoadImage(ImageInformation imageInfo)
+		public object LoadImage(MediaItem item)
 		{
 			using (var pool = new NSAutoreleasePool())
 			{
-				return NSData.FromFile(imageInfo.FullPath);
+                using (var stream = item.Stream())
+                {
+                    var data = NSData.FromStream(stream);
+                    data.Retain();
+                    return data;
+                }
 			}
 		}
 
@@ -216,6 +225,16 @@ namespace WatchThis
 			dataObject.Release();
 
 			return string.Format("filter {0}", filterName);
+		}
+
+		public void DisplayInfo(string message)
+		{
+			var attr = new NSMutableAttributedString(message);
+			attr.AddAttribute(
+				NSAttributedString.BackgroundColorAttributeName, 
+				NSColor.FromDeviceRgba(0, 0, 0, 0.75f),
+				new NSRange(0, message.Length));
+			infoText.AttributedStringValue = attr;
 		}
 
 		public override void MouseMoved(NSEvent evt)
@@ -385,6 +404,50 @@ namespace WatchThis
 		{
 			controller.UpdateUiState();
 		}
+	}
+
+	static public class NativeCalls
+	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+		const int LevelOn = 255;
+		const int LevelOff = 0;
+
+
+		static public int PreventSleep(string name)
+		{
+			int id;
+			var ret = IOPMAssertionCreateWithName("NoDisplaySleepAssertion", LevelOn, name, out id);
+			if (ret != 0)
+			{
+				logger.Warn("Failed preventing the display from sleeping: {0}", ret);
+			}
+			return id;
+		}
+
+		static public void AllowSleep(string name, int id)
+		{
+			var ret = IOPMAssertionCreateWithName("NoDisplaySleepAssertion", LevelOff, name, out id);
+			if (ret != 0)
+			{
+				logger.Warn("Failed allowing the display to sleep: {0}", ret);
+			}
+		}
+
+		static public int IOPMAssertionCreateWithName(String type, int level, string name, out int id)
+		{
+			using (CFString sType = type)
+			using (CFString sName = name)
+			{
+				return IOPMAssertionCreateWithName(sType, level, sName, out id);
+			}
+		}
+
+		[DllImport ("/System/Library/Frameworks/IOKit.framework/IOKit")]
+		extern static private int /* IOReturn */ IOPMAssertionCreateWithName(
+			IntPtr type,	// CFStringRef AssertionType
+			int level,		// IOPMAssertionLevel AssertionLevel
+			IntPtr name,	// CFStringRef AssertionName
+			IntPtr id);		// IOPMAssertionID *AssertionID 
 	}
 }
 

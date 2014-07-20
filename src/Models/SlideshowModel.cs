@@ -36,19 +36,33 @@ namespace WatchThis.Models
 
         private string _name;
         private double _slideSeconds;
+        private string _searchQuery;
+        private string _findAPhotoHost;
 //		public bool ShowOnce { set; get; }
 //		public SlideOrder Order { set; get; }
 
+        public string Search
+        {
+            get { return _searchQuery; }
+            set { this.SetField(PropertyChanged, ref _searchQuery, value, () => Search); }
+        }
+
+        public string FindAPhotoHost
+        {
+            get { return _findAPhotoHost; }
+            set { this.SetField(PropertyChanged, ref _findAPhotoHost, value, () => FindAPhotoHost); }
+        }
+
         public ObservableCollection<FolderModel> FolderList { get; private set; }
 
-		public List<ImageInformation> ImageList { get; set; }
+		public List<MediaItem> MediaList { get; set; }
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 
 		public SlideshowModel()
 		{
             FolderList = new ObservableCollection<FolderModel>();
-			ImageList = new List<ImageInformation>();
+			MediaList = new List<MediaItem>();
 			Reset();
 		}
 
@@ -62,7 +76,7 @@ namespace WatchThis.Models
 			TransitionSeconds = 1;
 			ManuallyControlled = false;
 			FolderList.Clear();
-			ImageList.Clear();
+			MediaList.Clear();
 		}
 
 		static public SlideshowModel ParseFile(string filename)
@@ -79,6 +93,7 @@ namespace WatchThis.Models
 			ssModel.Name = doc.Root.GetAttribute(XmlAttrName, "");
 			ssModel.SlideSeconds = doc.Root.GetAttribute(XmlAttrSlideDuration, ssModel.SlideSeconds);
 			ssModel.TransitionSeconds = doc.Root.GetAttribute(XmlAttrTransitionDuration, ssModel.TransitionSeconds);
+            ssModel.FindAPhotoHost = doc.Root.GetAttribute(XmlAttrFindAPhotoHost, ssModel.FindAPhotoHost);
 
 			foreach (var a in doc.Root.Attributes())
 			{
@@ -92,9 +107,13 @@ namespace WatchThis.Models
 			{
 				ssModel.FolderList.Add(FolderModel.FromElement(f));
 			}
-			if (ssModel.FolderList.Count < 1)
+            foreach (var s in doc.Descendants("search"))
+            {
+                ssModel.Search = s.GetAttribute("query", null);
+            }
+            if (ssModel.FolderList.Count < 1 && ssModel.Search == null)
 			{
-				throw new Exception("Missing 'folder' tag");
+				throw new Exception("Missing either 'folder' or 'search' tag");
 			}
 
 			foreach (var e in doc.Root.Elements())
@@ -114,7 +133,14 @@ namespace WatchThis.Models
 				new XElement(XmlRootName,
 					new XAttribute(XmlAttrName, Name),
 					new XAttribute(XmlAttrSlideDuration, SlideSeconds),
-					new XAttribute(XmlAttrTransitionDuration, TransitionSeconds)));
+                    new XAttribute(XmlAttrTransitionDuration, TransitionSeconds)));
+
+            if (FindAPhotoHost != null)
+            {
+                logger.Info("Handle saving host: {0}", FindAPhotoHost);
+//                xml.Root.FirstNode.
+//                    new XAttribute(XmlAttrFindAPhotoHost, FindAPhotoHost)));
+            }
 
 			foreach (var fm in FolderList)
 			{
@@ -122,6 +148,13 @@ namespace WatchThis.Models
 					new XElement("folder", 
 						new XAttribute("path", fm.Path)));
 			}
+
+            if (Search != null)
+            {
+                xml.Root.Add(
+                    new XElement("search",
+                        new XAttribute("query", Search)));
+            }
 
 			filename = EnsureExtension(filename);
 			File.WriteAllText(filename, xml.ToString());
@@ -140,70 +173,55 @@ namespace WatchThis.Models
 		public void Enumerate(Action itemsAvailable = null)
 		{
 			logger.Info("Enumeration started");
-			List<ImageInformation> allFiles = (List<ImageInformation>)ImageList;
-			allFiles.Clear();
+            MediaList.Clear();
+            MediaCollector collector = new MediaCollector(MediaList) { ItemsAvailable = itemsAvailable } ;
+            collector.Start(3);
 
-			Queue<string> filenames = new Queue<string>();
+            var tasks = new List<Task>();
+            if (FolderList.Count > 0)
+            {
+                tasks.Add(Task.Run( () =>
+                {
+                    var p = new FileProvider(Path.GetDirectoryName(Filename), FolderList);
+                    p.Enumerate(collector, itemsAvailable);
+                }));
+            }
 
-			var relativePath = Path.GetDirectoryName(Filename);
-			var builder = new InfoBuilder() { FilenameQueue = filenames, ImageList = allFiles, ItemsAvailable = itemsAvailable };
-			builder.Start(3);
-			foreach (var fm in FolderList)
-			{
-				var path = Path.Combine(fm.Path);
-				if (!Path.IsPathRooted(path))
-				{
-					path = Path.GetFullPath(Path.Combine(relativePath, path));
-				}
+            if (Search != null)
+            {
+                tasks.Add(Task.Run( () =>
+                {
+                    var p = new FindAPhotoProvider(FindAPhotoHost, Search);
+                    p.Enumerate(collector, itemsAvailable);
+                }));
+            }
 
-				if (Directory.Exists(path))
-				{
-					try
-					{
-						FileEnumerator.AddFilenames(
-							filenames,
-							path,
-							(s) => SupportedExtension(Path.GetExtension(s)));
-					}
-					catch (Exception ex)
-					{
-						logger.Info("Exception: {0}", ex);
-					}
-				}
-				else
-				{
-					logger.Warn("Ignoring non-existent path: '{0}'",  path);
-				}
-			}
-
-			builder.WaitForCompletion();
+            Task.WaitAll(tasks.ToArray());
+            collector.WaitForCompletion();
 			logger.Info("Enumeration completed");
-		}
-
-		bool SupportedExtension(string extension)
-		{
-			return extension.Equals(".jpg", StringComparison.InvariantCultureIgnoreCase) ||
-					extension.Equals(".jpeg", StringComparison.InvariantCultureIgnoreCase) ||
-					extension.Equals(".png", StringComparison.InvariantCultureIgnoreCase);
 		}
 
 		const string XmlRootName = "com.rangic.Slideshow";
 
-		const string XmlEleFolder = "folder";
+        const string XmlEleFolder = "folder";
+		const string XmlEleSearch = "search";
 		static string[] expectedElements = new []
 		{
 			XmlEleFolder,
+            XmlEleSearch,
 		};
 
 		const string XmlAttrName = "name";
 		const string XmlAttrSlideDuration = "slideDuration";
 		const string XmlAttrTransitionDuration = "transitionDuration";
+        const string XmlAttrFindAPhotoHost = "findAPhotoHost";
 
 		static string[] expectedAttributes = new []
 		{
 			XmlAttrName,
 			XmlAttrSlideDuration,
-			XmlAttrTransitionDuration
+			XmlAttrTransitionDuration,
+            XmlAttrFindAPhotoHost,
 		};
 	}
 

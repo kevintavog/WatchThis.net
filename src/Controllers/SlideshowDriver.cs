@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using WatchThis.Models;
 using WatchThis.Utilities;
+using System.IO;
 
 namespace WatchThis.Controllers
 {
@@ -53,7 +54,7 @@ namespace WatchThis.Controllers
 
 		private Timer _timer;
 		private Random _random = new Random();
-		private IList<ImageInformation> _recent = new List<ImageInformation>();
+        private IList<MediaItem> _recent = new List<MediaItem>();
 		private int? _recentIndex;
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -124,7 +125,7 @@ namespace WatchThis.Controllers
 		{
 			Task.Factory.StartNew( () =>
 			{
-				if (Model.ImageList.Count == 0)
+				if (Model.MediaList.Count == 0)
 				{
 					BeginEnumerate();
 				}
@@ -184,11 +185,11 @@ namespace WatchThis.Controllers
 			PlatformService.InvokeOnUiThread( () => Viewer.UpdateUiState());
 		}
 
-		private ImageInformation NextRandom()
+		private MediaItem NextRandom()
 		{
-			var index = _random.Next(Model.ImageList.Count);
-			var item = Model.ImageList[index];
-			Model.ImageList.RemoveAt(index);
+			var index = _random.Next(Model.MediaList.Count);
+			var item = Model.MediaList[index];
+			Model.MediaList.RemoveAt(index);
 
 			_recent.Add(item);
 			while (_recent.Count > 1000)
@@ -199,22 +200,40 @@ namespace WatchThis.Controllers
 			return item;
 		}
 
-		private void ShowImage(ImageInformation imageInfo)
+		private void ShowImage(MediaItem item)
 		{
 			Task.Factory.StartNew(() =>
 				{
 					try
 					{
-						object image = Viewer.LoadImage(imageInfo);
+						object image = Viewer.LoadImage(item);
 						PlatformService.InvokeOnUiThread(() =>
 							{
 								var message = Viewer.DisplayImage(image);
-								logger.Info("image {0}; {1}", imageInfo.FullPath, message);
+                                logger.Info("image {0}; {1}", item.Identifier, message);
 							});
 					}
 					catch (Exception e)
 					{
-						logger.Error("Error loading image '{0}': {1}", imageInfo.FullPath, e);
+                        logger.Error("Error loading image '{0}': {1}", item.Identifier, e);
+					}
+				})
+				.ContinueWith((a) =>
+				{
+					try
+					{
+                        var message = string.Format(" {0} ", Path.GetFileName(item.ParentDirectoryName));
+						var location = item.GetLocation();
+						if (location != null && !String.IsNullOrEmpty(location.PlaceName))
+						{
+							message = string.Format("{0}    {1}", message, location.PlaceName);
+						}
+
+						PlatformService.InvokeOnUiThread(() => Viewer.DisplayInfo(message));
+					}
+					catch (Exception ex)
+					{
+                        logger.Error("Error loading info for {0}: {1}", item.Identifier, ex);
 					}
 				});
 		}
@@ -280,7 +299,7 @@ namespace WatchThis.Controllers
 				{
 					Model.Enumerate( () => 
 						{
-							logger.Info("Images available: {0}", Model.ImageList.Count);
+							logger.Info("Images available: {0}", Model.MediaList.Count);
 							PlatformService.InvokeOnUiThread( delegate { Viewer.UpdateUiState(); } );
 							Play();
 						});
@@ -291,7 +310,7 @@ namespace WatchThis.Controllers
 					{
 						if (State == DriverState.Playing || State == DriverState.Paused)
 						{
-							logger.Info("Images fully loaded: {0}", Model.ImageList.Count);
+							logger.Info("Images fully loaded: {0}", Model.MediaList.Count);
 							PlatformService.InvokeOnUiThread( delegate 
 								{
 									Viewer.UpdateUiState(); 
@@ -314,4 +333,3 @@ namespace WatchThis.Controllers
 		}
 	}
 }
-

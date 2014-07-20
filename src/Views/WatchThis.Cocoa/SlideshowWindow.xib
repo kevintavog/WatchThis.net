@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment defaultVersion="1090" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="SlideshowindowController">
@@ -11,6 +11,7 @@
                 <outlet property="controlsView" destination="zDo-yA-kVL" id="123-pv-004"/>
                 <outlet property="enterFullScreenButton" destination="ats-TD-5Im" id="123-pv-006"/>
                 <outlet property="exitFullScreenButton" destination="amJ-nK-yQE" id="123-pv-007"/>
+                <outlet property="infoText" destination="Byc-SG-c6g" id="123-pv-008"/>
                 <outlet property="pauseButton" destination="oMV-DH-Qkh" id="123-pv-003"/>
                 <outlet property="playButton" destination="nlM-YM-yzR" id="123-pv-002"/>
                 <outlet property="previousButton" destination="Uhy-M5-iyS" id="123-pv-001"/>
@@ -23,14 +24,14 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="131" y="74" width="617" height="453"/>
+            <rect key="contentRect" x="0.0" y="55" width="617" height="453"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" wantsLayer="YES" id="3">
                 <rect key="frame" x="0.0" y="0.0" width="617" height="453"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <customView id="zDo-yA-kVL">
-                        <rect key="frame" x="55" y="41" width="506" height="69"/>
+                        <rect key="frame" x="55" y="54" width="506" height="69"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <button focusRingType="none" verticalHuggingPriority="750" id="Uhy-M5-iyS">
@@ -121,6 +122,21 @@ IA
                                     <action selector="closeSlideshow:" target="-1" id="qiT-jk-IzR"/>
                                 </connections>
                             </button>
+                        </subviews>
+                    </customView>
+                    <customView id="zMc-gW-cBa">
+                        <rect key="frame" x="0.0" y="0.0" width="607" height="27"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Byc-SG-c6g">
+                                <rect key="frame" x="0.0" y="-3" width="607" height="28"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <textFieldCell key="cell" lineBreakMode="truncatingTail" allowsUndo="NO" sendsActionOnEndEditing="YES" alignment="left" title="The text goes here" drawsBackground="YES" usesSingleLineMode="YES" id="PXQ-KF-Efj">
+                                    <font key="font" metaFont="system" size="21"/>
+                                    <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                </textFieldCell>
+                            </textField>
                         </subviews>
                     </customView>
                 </subviews>

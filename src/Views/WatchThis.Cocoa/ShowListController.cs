@@ -66,6 +66,8 @@ namespace WatchThis
 			NotifyPropertyChangedHelper.SetupPropertyChanged(_controller, PropertyChanged);
 
 			_controller.FindSavedSlideshows();
+
+//			NativeCalls.PreventSleep("WatchThis");
 		}
 
 
@@ -107,6 +109,7 @@ namespace WatchThis
 
 		public void ShowMessage(string caption, string message)
 		{
+            logger.Info("ShowMessage: '{0}'; '{1}'", caption, message);
 			NSAlert.WithMessage(message, "Close", "", "", "").RunSheetModal(Window);
 		}
 
