@@ -33,7 +33,7 @@
       <HintPath>..\..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Kekiri">
-      <HintPath>..\..\packages\Kekiri.1.5.1\lib\net40\Kekiri.dll</HintPath>
+      <HintPath>..\..\packages\Kekiri.2.1.2\lib\net45\Kekiri.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -113,7 +113,7 @@ namespace WatchThis.Models
             var item = data as ItemCache;
             var l = new Location(item.Latitude, item.Longitude);
 
-            logger.Info("Location: {0}, [{1}]", l, l.FullResponse);
+            logger.Info("Location: {0}, [{1}]", l, l.PlaceName(Location.PlaceNameFilter.None));
 
             return l;
         }

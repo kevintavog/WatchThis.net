@@ -224,10 +224,11 @@ namespace WatchThis.Controllers
 					{
                         var message = string.Format(" {0} ", Path.GetFileName(item.ParentDirectoryName));
 						var location = item.GetLocation();
-						if (location != null && !String.IsNullOrEmpty(location.PlaceName))
-						{
-							message = string.Format("{0}    {1}", message, location.PlaceName);
-						}
+                        if (location != null)
+                        {
+                            var placeName = location.PlaceName(Location.PlaceNameFilter.None);
+                            message = string.Format("{0}    {1}", message, placeName);
+                        }
 
 						PlatformService.InvokeOnUiThread(() => Viewer.DisplayInfo(message));
 					}
