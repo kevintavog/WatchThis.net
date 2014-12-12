@@ -369,15 +369,15 @@ namespace WatchThis
 			filterTransition.Duration = typeTransition.Duration;
 
 
-			transitionFilters.Add(barsSwipeTransition);
-			transitionFilters.Add(copyMachineTransition);
-			transitionFilters.Add(disintegrateTransition);
-			transitionFilters.Add(dissolveTransition);
-			transitionFilters.Add(flashTransition);
-			transitionFilters.Add(modTransition);
-			transitionFilters.Add(pageCurlShadowTransition);
-			transitionFilters.Add(rippleTransition);
-			transitionFilters.Add(swipeTransition);
+//			transitionFilters.Add(barsSwipeTransition);
+//			transitionFilters.Add(copyMachineTransition);
+//			transitionFilters.Add(disintegrateTransition);
+//			transitionFilters.Add(dissolveTransition);
+//			transitionFilters.Add(flashTransition);
+//			transitionFilters.Add(modTransition);
+//			transitionFilters.Add(pageCurlShadowTransition);
+//			transitionFilters.Add(rippleTransition);
+//			transitionFilters.Add(swipeTransition);
 		}
 	}
 
