@@ -7,6 +7,7 @@ using System.Timers;
 using WatchThis.Models;
 using WatchThis.Utilities;
 using System.IO;
+using Rangic.Utilities.Geo;
 
 namespace WatchThis.Controllers
 {
@@ -226,7 +227,7 @@ namespace WatchThis.Controllers
 						var location = item.GetLocation();
                         if (location != null)
                         {
-                            var placeName = location.PlaceName(Location.PlaceNameFilter.None);
+                            var placeName = location.PlaceName(Location.PlaceNameFilter.Standard);
                             message = string.Format("{0}    {1}", message, placeName);
                         }
 

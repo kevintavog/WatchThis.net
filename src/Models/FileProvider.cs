@@ -3,6 +3,7 @@ using NLog;
 using System.Collections.Generic;
 using System.IO;
 using WatchThis.Utilities;
+using Rangic.Utilities.Geo;
 
 namespace WatchThis.Models
 {
