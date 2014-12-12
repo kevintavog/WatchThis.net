@@ -450,4 +450,3 @@ namespace WatchThis
 			IntPtr id);		// IOPMAssertionID *AssertionID 
 	}
 }
-
