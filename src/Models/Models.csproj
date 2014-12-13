@@ -45,19 +45,19 @@
       <HintPath>..\packages\ExifLib.1.6.3.0\lib\net45\ExifLib.dll</HintPath>
     </Reference>
     <Reference Include="RangicUtilities">
-      <HintPath>..\packages\Rangic.Utilities.1.0.0.3\lib\net45\RangicUtilities.dll</HintPath>
+      <HintPath>..\packages\Rangic.Utilities.1.0.0.5\lib\net45\RangicUtilities.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SlideshowModel.cs" />
     <Compile Include="FileSignature.cs" />
-    <Compile Include="Preferences.cs" />
     <Compile Include="FileProvider.cs" />
     <Compile Include="FindAPhotoProvider.cs" />
     <Compile Include="MediaCollector.cs" />
     <Compile Include="MediaItem.cs" />
     <Compile Include="IProvider.cs" />
+    <Compile Include="WatchThisPreferences.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

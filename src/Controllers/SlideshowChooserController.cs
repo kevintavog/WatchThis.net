@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using WatchThis.Models;
 using WatchThis.Utilities;
+using Rangic.Utilities.Preferences;
 
 namespace WatchThis.Controllers
 {
@@ -59,7 +60,7 @@ namespace WatchThis.Controllers
 
 			NotifyPropertyChangedHelper.SetupPropertyChanged(EditedSlideshow, (c, h) => _editedHasChanged = true);
 
-			var filename = SlideshowModel.EnsureExtension(Preferences.Instance.LastEditedFilename);
+            var filename = SlideshowModel.EnsureExtension(Preferences<WatchThisPreferences>.Instance.LastEditedFilename);
 			if (File.Exists(filename))
 			{
 				try
@@ -80,7 +81,7 @@ namespace WatchThis.Controllers
 			if (string.IsNullOrWhiteSpace(EditedSlideshow.Filename))
 			{
 				// If it hasn't been saved yet, save it as the lastEdited.
-				var filename = SlideshowModel.EnsureExtension(Preferences.Instance.LastEditedFilename);
+                var filename = SlideshowModel.EnsureExtension(Preferences<WatchThisPreferences>.Instance.LastEditedFilename);
 				try
 				{
 					EditedSlideshow.Name = "";
@@ -279,7 +280,7 @@ namespace WatchThis.Controllers
 					// Report any save problems
 					var priorFilename = EditedSlideshow.Filename;
 					var filename = Path.Combine(
-						Preferences.Instance.SlideshowwFolder,
+                        Preferences<WatchThisPreferences>.Instance.SlideshowFolder,
 						string.Join("_", name.Split(
 							Path.GetInvalidFileNameChars(),
 							StringSplitOptions.RemoveEmptyEntries)).Trim());
@@ -328,7 +329,7 @@ namespace WatchThis.Controllers
 						}
 					}
 
-					var lastEditedFilename = SlideshowModel.EnsureExtension(Preferences.Instance.LastEditedFilename);
+                    var lastEditedFilename = SlideshowModel.EnsureExtension(Preferences<WatchThisPreferences>.Instance.LastEditedFilename);
 					if (File.Exists(lastEditedFilename))
 					{
 						try
@@ -410,7 +411,7 @@ namespace WatchThis.Controllers
 		public void FindSavedSlideshows()
 		{
 			SlideshowEnumerator.FindSlideshows(
-				Preferences.Instance.SlideshowwFolder,
+                Preferences<WatchThisPreferences>.Instance.SlideshowFolder,
 				this,
 				PlatformService);
 		}
@@ -433,4 +434,3 @@ namespace WatchThis.Controllers
 		}
 	}
 }
-

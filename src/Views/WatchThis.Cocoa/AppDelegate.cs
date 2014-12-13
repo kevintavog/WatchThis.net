@@ -5,6 +5,7 @@ using MonoMac.Foundation;
 using MonoMac.AppKit;
 using NLog;
 using System.Reflection;
+using Rangic.Utilities.Preferences;
 
 namespace WatchThis
 {
@@ -48,11 +49,12 @@ namespace WatchThis
 			logger.Info("Finished launching: .NET {0} ({1}); startedSlideshow = {2}", System.Environment.Version, monoVersion, startedSlideshow);
 			if (!startedSlideshow)
 			{
-				Preferences.Load(Path.Combine(
-					Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-					"Library",
-					"Preferences",
-					"com.rangic.WatchThis.xml"));
+                Preferences<WatchThisPreferences>.Load(
+				    Path.Combine(
+    					Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+    					"Library",
+    					"Preferences",
+    					"WatchThis.rangic.json"));
 
 				controller = new ShowListController();
 				controller.Window.MakeKeyAndOrderFront(this);

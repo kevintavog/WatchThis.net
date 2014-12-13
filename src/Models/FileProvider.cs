@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using WatchThis.Utilities;
 using Rangic.Utilities.Geo;
+using Rangic.Utilities.Image;
 
 namespace WatchThis.Models
 {
@@ -73,7 +74,7 @@ namespace WatchThis.Models
 
         public Location GetLocation(object data)
         {
-            return ImageDetailsReader.GetLocation(data as string);
+            return new ImageDetails(data as String).Location;
         }
 
         public Stream Stream(object data)

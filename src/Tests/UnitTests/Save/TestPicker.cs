@@ -15,7 +15,6 @@ namespace UnitTests
 
 		static TestPicker()
 		{
-			Preferences.Load("not a real file");
 		}
 
 		public void InvokeOnUiThread(Action action)

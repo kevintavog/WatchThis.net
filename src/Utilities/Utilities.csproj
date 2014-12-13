@@ -44,7 +44,7 @@
       <HintPath>..\packages\ExifLib.1.6.3.0\lib\net45\ExifLib.dll</HintPath>
     </Reference>
     <Reference Include="RangicUtilities">
-      <HintPath>..\packages\Rangic.Utilities.1.0.0.3\lib\net45\RangicUtilities.dll</HintPath>
+      <HintPath>..\packages\Rangic.Utilities.1.0.0.5\lib\net45\RangicUtilities.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -53,7 +53,6 @@
     <Compile Include="XElementExtensions.cs" />
     <Compile Include="FileEnumerator.cs" />
     <Compile Include="NotifyPropertyChangedHelper.cs" />
-    <Compile Include="ImageDetailsReader.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

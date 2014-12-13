@@ -129,6 +129,8 @@ namespace WatchThis.Models
 
 		public void Save(string filename)
 		{
+            Directory.CreateDirectory(Path.GetDirectoryName(filename));
+
 			var xml = new XDocument(
 				new XElement(XmlRootName,
 					new XAttribute(XmlAttrName, Name),
